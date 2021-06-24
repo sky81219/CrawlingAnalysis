@@ -19,7 +19,6 @@ class FireFoxDriverUtility:
         # 광범위 확장하자
         google_search_input = self.driver.find_element_by_xpath(self.google_xpath)
         google_search_input.send_keys(data)
-        google_search_input.send_keys(Keys.RETURN)
+        google_search_input.submit()
 
-        html = self.driver.page_source
-        return html
+
