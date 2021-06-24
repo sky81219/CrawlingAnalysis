@@ -16,9 +16,12 @@ def html_parsing(data):
     for data in soup.findAll('a'):
         if data['href'] == '#':
             continue
+        if data['href'] == 'javascript':
+            continue
+
         href_info = data.attrs['href']
         if href_info is not None:
             if href_info not in visit_deque:
                 # 긁어온 링크를 visit_deque 에 저장
                 visit_deque.append(href_info)
-                print(visit_deque)
+    print(visit_deque)

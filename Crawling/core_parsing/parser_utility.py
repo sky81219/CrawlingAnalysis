@@ -21,4 +21,9 @@ class FireFoxDriverUtility:
         google_search_input.send_keys(data)
         google_search_input.submit()
 
+        html = self.driver.page_source
+        location = self.driver.current_url
+        print(location)
+        return html
+
 
