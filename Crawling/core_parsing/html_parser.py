@@ -1,27 +1,36 @@
+import re
 from collections import deque
-from bs4 import BeautifulSoup
 from core_parsing.parser_utility import FireFoxDriverUtility
+
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+
 
 # html data paring
 visit_deque = deque()
 
+class UrlParsingDriver:
+    def __init__(self, data):
+        self.data = data
+        self.url_box = set()
+        self.url = 'https://www.google.com'
 
-def html_parsing(data):
-    # 드라이버 가져오기 and html parsing
-    web_driver = FireFoxDriverUtility()
-    html = web_driver.element_injection(data)
+    def url_schema(self):
+        url_architecture = f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}'
+        link_string = re.compile("^(/|.*" + url_architecture + ")")
 
-    # parsing
-    soup = BeautifulSoup(html, 'lxml')
-    for data in soup.findAll('a'):
-        if data['href'] == '#':
-            continue
-        if data['href'] == 'javascript':
-            continue
+        return url_architecture, link_string
 
-        href_info = data.attrs['href']
-        if href_info is not None:
-            if href_info not in visit_deque:
-                # 긁어온 링크를 visit_deque 에 저장
-                visit_deque.append(href_info)
-    print(visit_deque)
+    def html_parsing(self):
+        # 드라이버 가져오기 and html parsing
+        web_driver = FireFoxDriverUtility()
+        html = web_driver.search_injection(self.data)
+
+        for html_data in html:
+            # parsing
+            soup = BeautifulSoup(html_data, 'lxml')
+            print(soup.prettify()+'\n')
+        """
+        for link in soup.find_all('h3', {'class': 'LC20lb DKV0Md'}):
+            print(f'{link}')
+        """
