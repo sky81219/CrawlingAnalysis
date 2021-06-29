@@ -4,90 +4,105 @@
     - driver 다운로드 후 관련 단어 크롤링
         -크롤링 예비 가져오기
         -crawling -> JSON - redis DB
+
+rule
+page 기초 값으로 3페이지를 기본값으로 설정
+chrome 과 firefox 지정 값 설정
+google naver daum 임시적 성공
+
+naver = dir id main_pack
+daum = dir id inner_article
+# self.korea_search_xpath = '//input[@title="검색어 입력"]'  # korea naver xpath
+# self.korea_button = '//a[@class="btn"]'
 """
+import multiprocessing
 import time
+
+from core_parsing import create_log
 from pymongo import MongoClient
 
 import chromedriver_autoinstaller
 import geckodriver_autoinstaller
 from selenium import webdriver
 
-class MongoDbManager:
-    def __init__(self, loot, port):
-        self.instance = None
-        self.client = MongoClient(loot, port)
-
-
-# 드라이버 확인 하는 객체
+# 드라이버 확인(다운로드) 하는 객체
 firefox_download = geckodriver_autoinstaller.install()
 chrome_download = chromedriver_autoinstaller.install()
+
+# 로그
+logging = create_log.log()
+
+
 def fire_driver():
-    try:
-        print('파이어폭스 드라이버 실행합니다')
-        return webdriver.Firefox()
-    except:
-        print('파이어폭스 드라이버 다운..')
-        fire = firefox_download
-        return webdriver.Firefox()
+    logging.info(f'FireFox Webdriver PATH -> {firefox_download}')
+    return webdriver.Firefox()
+
 
 def chrome_driver():
-    try:
-        print('크롬 드라이버 실행 합니다.')
-        return webdriver.Chrome()
-    except:
-        print('크롬 드라이버 다운로드..')
-        chrome = chrome_download
-        return webdriver.Chrome()
+    logging.info(f'Chrome Webdriver PATH -> {chrome_download}')
+    return webdriver.Chrome()
 
 
 def select_driver():
     print('what do you want web? 1.Chrome 2.Firefox --> ', end='')
     select = input()
-
     if '1' == select:
         return chrome_driver()
     elif '2' == select:
         return fire_driver()
 
 
-class SeleniumUtility:
-    def __init__(self, data=None):
-        self.driver = select_driver()
-        self.google_search_xpath = '//input[@title="검색"]'                                              # xpath
-        self.scroll_down = self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
-        self.html_source = []
+# 드라이버
+driver = select_driver()
+html_source = []
+
+
+class GoogleSeleniumUtility:
+    def __init__(self, data=None, count=5, url='https://google.com'):
+        self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
+        self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
         self.data = data
+        self.count = count
+        self.url = url
+
+    def search_input(self):
+        google_search_input = driver.find_element_by_xpath(self.google_search_xpath)
+        return google_search_input
 
     # 검색 -> 검색한 URL 로 넘어가기
-    def search_injection(self, url='https://www.google.com'):
-        self.driver.get(url)
-        google_search_input = self.driver.find_element_by_xpath(self.google_search_xpath)
-        google_search_input.send_keys(self.data)
-        google_search_input.submit()
+    def search_injection(self):
+        driver.get(self.url)
+
+        self.search_input().send_keys(self.data)
+        self.search_input().submit()
 
         # 딜레이 3초
         time.sleep(3)
-        self.html_source.append(self.driver.page_source)
+        html_source.append(driver.page_source)
 
         # 스크롤 down
         return self.scroll_down
 
     # page search count
-    def next_page_injection(self, count=5):
+    def next_page_injection(self):
         self.search_injection()
-        for i in range(2, count + 1):
-            print(f'Search in Crawling... {i} page Checking')
-            # 다음 페이지 가기위한 xpath 절차 딜레이 3초
-            next_page = self.driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
-            next_page.click()
+        for i in range(2, self.count + 1):
+            logging.info(f'Search in Crawling... {i} page Checking')
+            google_next_page = driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
+            google_next_page.click()
 
             # page html 가져오기 딜레이 3초
-            html = self.driver.page_source
+            html = driver.page_source
             time.sleep(3)
 
             # html data -> html_parsing.py 로 return
-            self.html_source.append(html)
-        self.driver.close()
+            html_source.append(html)
+        driver.quit()
 
-        return self.html_source
+        return html_source
 
+
+class MongoDbManager:
+    def __init__(self, loot, port):
+        self.instance = None
+        self.client = MongoClient(loot, port)

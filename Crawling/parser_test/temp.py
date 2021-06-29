@@ -1,14 +1,12 @@
 import time
-from core_parsing.html_parser import UrlParsingDriver
-from core_parsing.utility import SeleniumUtility
-
+from core_parsing.web_parser import UrlParsingDriver
+from multiprocessing import Process
 start_time = time.time()
 
+
 def parsing(data):
-    first = UrlParsingDriver(data)
-    second = first.search_result()
-
-    return second
+    first = UrlParsingDriver(data, 5, 'https://google.com')
+    test = first.search_data()
 
 
-parsing('python')
+print(f'총 걸린 시간 --> {time.time() - start_time}')
