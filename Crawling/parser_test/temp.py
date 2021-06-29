@@ -1,15 +1,14 @@
 import time
 from core_parsing.html_parser import UrlParsingDriver
+from core_parsing.utility import SeleniumUtility
 
 start_time = time.time()
 
-
-def test_parser(data):
+def parsing(data):
     first = UrlParsingDriver(data)
-    data = first.search_result()
+    second = first.search_result()
 
-    return data
+    return second
 
 
-test_parser('python')
-print(f"end time -> {time.time() - start_time}")
+parsing('python')

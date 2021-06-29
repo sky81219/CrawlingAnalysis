@@ -1,4 +1,4 @@
-from core_parsing.utility import WebDriverUtility as WD
+from core_parsing.utility import SeleniumUtility as SU
 
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -7,12 +7,11 @@ from urllib.parse import urlparse
 # html data paring
 class UrlParsingDriver:
     def __init__(self, data):
-        self.soup = None
         self.data = data
         self.url_box = []
         self.text_box = []
         self.url = 'https://www.google.com'
-        self.web_driver = WD(self.data).next_page_injection()
+        self.web_driver = SU(self.data).next_page_injection()
 
     # URL 스키마 잠금 함수
     def url_create(self):
@@ -27,8 +26,6 @@ class UrlParsingDriver:
                 pass
 
         # 시작 코드
-        if self.soup is None:
-            return
         for html_data in self.web_driver:
             soup = BeautifulSoup(html_data, 'lxml')
             # a tag -> h3 tag location
