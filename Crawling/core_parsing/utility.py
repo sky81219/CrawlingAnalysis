@@ -3,18 +3,25 @@
 최대 목표
 crawling -> JSON - redis DB
 """
-from selenium import webdriver
 import time
 
+from selenium import webdriver
+from pymongo import MongoClient
 
 # HTML PARSING
 # 드라이버 객체화
-class FireFoxDriverUtility:
-    def __init__(self, data):
-        self.driver = webdriver.Firefox()                                                               # 드라이버
+class MongoDbManager:
+    def __init__(self):
+        self.instance = None
+        self.client = MongoClient("localhost", 27017)
+
+
+class WebDriverUtility:
+    def __init__(self, data, driver=webdriver.Firefox()):
         self.google_search_xpath = '//input[@title="검색"]'                                              # xpath
         self.scroll_down = self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
         self.html_source = []
+        self.driver = driver                                                                            # 드라이버
         self.data = data
 
     # 검색 -> 검색한 URL 로 넘어가기
