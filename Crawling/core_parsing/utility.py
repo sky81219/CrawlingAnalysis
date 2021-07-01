@@ -15,6 +15,7 @@ daum = dir id inner_article
 # self.korea_search_xpath = '//input[@title="검색어 입력"]'  # korea naver xpath
 # self.korea_button = '//a[@class="btn"]'
 """
+import datetime
 import multiprocessing
 import time
 
@@ -24,6 +25,7 @@ from pymongo import MongoClient
 import chromedriver_autoinstaller
 import geckodriver_autoinstaller
 from selenium import webdriver
+start_time = datetime.datetime.now()
 
 # 드라이버 확인(다운로드) 하는 객체
 firefox_download = geckodriver_autoinstaller.install()
@@ -42,10 +44,10 @@ def chrome_driver():
     logging.info(f'Chrome Webdriver PATH -> {chrome_download}')
     return webdriver.Chrome()
 
-
 def select_driver():
     print('what do you want web? 1.Chrome 2.Firefox --> ', end='')
     select = input()
+
     if '1' == select:
         return chrome_driver()
     elif '2' == select:
@@ -58,6 +60,8 @@ html_source = []
 
 
 class GoogleSeleniumUtility:
+    logging.info(f'start time in --> {start_time}')
+
     def __init__(self, data=None, count=5, url='https://google.com'):
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
@@ -65,16 +69,16 @@ class GoogleSeleniumUtility:
         self.count = count
         self.url = url
 
-    def search_input(self):
-        google_search_input = driver.find_element_by_xpath(self.google_search_xpath)
-        return google_search_input
-
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
         driver.get(self.url)
 
-        self.search_input().send_keys(self.data)
-        self.search_input().submit()
+        def search_input():
+            google_search_input = driver.find_element_by_xpath(self.google_search_xpath)
+            return google_search_input
+
+        search_input().send_keys(self.data)
+        search_input().submit()
 
         # 딜레이 3초
         time.sleep(3)
