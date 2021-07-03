@@ -18,6 +18,7 @@ daum = dir id inner_article
 import datetime
 import time
 
+import bs4
 from pymongo import MongoClient
 from core_parsing import create_log
 
