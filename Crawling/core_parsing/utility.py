@@ -12,7 +12,8 @@ google naver daum 임시적 성공
 
 naver = dir id main_pack
 daum = dir id inner_article
-# self.korea_search_xpath = '//input[@title="검색어 입력"]'  # korea naver xpath
+# self.korea_search_xpath = '//input[@title="검색어 입력"]'  # korea naver, kakao search xpath
+# self.google_search_xpath = '//input[@title="검색"]'  # korea google search xpath
 # self.korea_button = '//a[@class="btn"]'
 """
 import datetime

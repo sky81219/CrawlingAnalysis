@@ -36,6 +36,7 @@ class UrlParsingDriver(SU):
 
                 if get_link is not None:
                     total_search = self.url_addition(get_link)
+                    print(total_search)
 
             for h3_tag in soup.find_all('h3', {'class': 'LC20lb DKV0Md'}):
                 text_data = h3_tag.text
