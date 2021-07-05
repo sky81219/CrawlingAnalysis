@@ -17,15 +17,17 @@ daum = dir id inner_article
 # self.korea_button = '//a[@class="btn"]'
 """
 import datetime
-import multiprocessing
 import time
 
-from core_parsing import create_log
+import bs4
 from pymongo import MongoClient
+from core_parsing import create_log
 
 import chromedriver_autoinstaller
 import geckodriver_autoinstaller
 from selenium import webdriver
+
+# 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
 
 # 드라이버 확인(다운로드) 하는 객체
@@ -36,15 +38,19 @@ chrome_download = chromedriver_autoinstaller.install()
 logging = create_log.log()
 
 
+# download driver firefox
 def fire_driver():
     logging.info(f'FireFox Webdriver PATH -> {firefox_download}')
     return webdriver.Firefox()
 
 
+# download driver chrome
 def chrome_driver():
     logging.info(f'Chrome Webdriver PATH -> {chrome_download}')
     return webdriver.Chrome()
 
+
+# download select driver
 def select_driver():
     print('what do you want web? 1.Chrome 2.Firefox --> ', end='')
     select = input()
@@ -55,7 +61,7 @@ def select_driver():
         return fire_driver()
 
 
-# 드라이버
+# driver
 driver = select_driver()
 html_source = []
 
@@ -73,20 +79,24 @@ class GoogleSeleniumUtility:
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
         driver.get(self.url)
+        logging.info(f'Start Search in Crawling... {1} page Checking')
 
-        def search_input():
-            google_search_input = driver.find_element_by_xpath(self.google_search_xpath)
-            return google_search_input
+        def google_search_util():
+            # google xpath location
+            google_search = driver.find_element_by_xpath(self.google_search_xpath)
+            # 보내는 키
+            google_search.send_keys(self.data)
+            google_search.submit()
 
-        search_input().send_keys(self.data)
-        search_input().submit()
+            html_source.append(driver.page_source)
 
-        # 딜레이 3초
-        time.sleep(3)
-        html_source.append(driver.page_source)
+            # 딜레이 3초
+            time.sleep(3)
 
-        # 스크롤 down
-        return self.scroll_down
+            # 스크롤 down
+            return self.scroll_down
+
+        return google_search_util()
 
     # page search count
     def next_page_injection(self):
@@ -97,13 +107,11 @@ class GoogleSeleniumUtility:
             google_next_page.click()
 
             # page html 가져오기 딜레이 3초
-            html = driver.page_source
+            html_data = driver.page_source
+            html_source.append(html_data)
             time.sleep(3)
 
-            # html data -> html_parsing.py 로 return
-            html_source.append(html)
         driver.quit()
-
         return html_source
 
 

@@ -4,11 +4,11 @@ start_time = time.time()
 
 
 def parsing(data):
-    first = UrlParsingDriver(data, 3)
+    first = UrlParsingDriver(data, 1)
     test = first.search_data()
 
     return test
 
 
-parsing(data='엘프리모')
+parsing(data='python')
 print(f'총 걸린 시간 --> {time.time() - start_time}')
