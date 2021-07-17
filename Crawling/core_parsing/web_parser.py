@@ -1,3 +1,8 @@
+"""
+데이터 분산 처리
+대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 ->
+                    데이터 분산 처리 전처리 후 -> 머신러닝(phishing site))
+"""
 import re
 from queue import Queue
 
