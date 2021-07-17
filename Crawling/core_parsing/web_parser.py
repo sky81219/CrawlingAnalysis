@@ -1,8 +1,15 @@
 import re
+from queue import Queue
 
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from Crawling.core_parsing.utility import GoogleSeleniumUtility
+
+
+def queue_data(data):
+    visit_site = Queue()
+    visited_site = Queue()
+    expected_site = Queue()
 
 # html data paring
 class UrlParsingDriver(GoogleSeleniumUtility):
@@ -10,6 +17,7 @@ class UrlParsingDriver(GoogleSeleniumUtility):
         super(UrlParsingDriver, self).__init__(data=data, count=count, url=url)
         self.ignore_tag = '#'
         self.ignore_url = re.compile('^(http|https)+://(webcache)')
+        self.ignore_search = re.compile('^/(search)|(related:)')
         self.url = url
 
     # URL 스키마 잠금 함수
@@ -28,13 +36,13 @@ class UrlParsingDriver(GoogleSeleniumUtility):
             for a_tag in soup.find('div', id='rso').find_all('a'):
                 get_link = a_tag['href']
 
-                if self.ignore_url.findall(get_link):
+                if self.ignore_url.findall(get_link) or self.ignore_search.findall(get_link):
                     continue
-                if get_link == self.ignore_tag:
+                if self.ignore_tag == get_link:
                     continue
-
                 if get_link is not None:
                     total_search = self.url_addition(get_link)
+                    print(total_search)
 
             for h3_tag in soup.find_all('h3', {'class': 'LC20lb DKV0Md'}):
                 text_data = h3_tag.text
