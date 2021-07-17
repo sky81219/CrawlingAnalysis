@@ -52,7 +52,7 @@ class PhishingPreprocessing:
     def count_http(self):
         return self.url.count("http")
 
-    def count_htts(self):
+    def count_https(self):
         return self.url.count("https")
 
     def count_www(self):
@@ -90,20 +90,20 @@ class PhishingPreprocessing:
 
     def get_total_date(self):
         try:
-            domain = whois.whois(self.url)
+            domain = whois.Domain(self.url)
             if type(domain.expiration_date) is list:
                 expiration_date = domain.expiration_date[0]
             else:
                 expiration_date = domain.expiration_date
 
-            if type(domain.updated_date) is list:
-                updated_date = domain.updated_date[0]
+            if type(domain.last_updated) is list:
+                updated_date = domain.last_updated[0]
             else:
-                updated_date = domain.updated_date
+                updated_date = domain.last_updated
 
             total_date = (expiration_date - updated_date).days
             return total_date
-        except (whois.parser.PywhoisError, TypeError, requests.exceptions.TooManyRedirects, UnicodeError,
+        except (whois.exceptions.WhoisCommandFailed, TypeError, requests.exceptions.TooManyRedirects, UnicodeError,
                 requests.exceptions.InvalidSchema):
             return -1
 
@@ -114,7 +114,7 @@ class PhishingPreprocessing:
                 return -1
             else:
                 return 0
-        except (whois.parser.PywhoisError, URLError, requests.exceptions.InvalidSchema):
+        except (whois.exceptions.WhoisCommandFailed, URLError, requests.exceptions.InvalidSchema):
             return -1
 
     def google_index(self):
@@ -177,7 +177,7 @@ class PhishingPreprocessing:
             "path_entropy": [self.path_entropy()], "hostname_length": [self.hostname_length()],
             "path_length": [self.path_length()], "tld_length": [self.tld_length()], "count-": [self.prefix_suffix()],
             "count-@": [self.having_symbol()], "special_chapter": [self.special_character()],
-            "count-http": [self.count_http()], "count-https": [self.count_htts()], "count-www": [self.count_www()],
+            "count-http": [self.count_http()], "count-https": [self.count_https()], "count-www": [self.count_www()],
             "count-digit": [self.numDigits()], "count-letter": [self.letter_count()], "count_dir": [self.no_of_dir()],
             "Redirection": [self.redirection()], "google_index": [self.google_index()],
             "url_length": [self.url_length()], "DomainRegistrationLength": [self.domain_registration_length()],

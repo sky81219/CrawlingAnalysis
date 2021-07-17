@@ -21,7 +21,7 @@ import time
 
 import bs4
 from pymongo import MongoClient
-from core_parsing import create_log
+from Crawling.core_parsing import create_log
 
 import chromedriver_autoinstaller
 import geckodriver_autoinstaller
