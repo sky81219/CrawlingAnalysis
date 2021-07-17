@@ -1,11 +1,11 @@
 import time
-from core_parsing.web_parser import UrlParsingDriver
+from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 start_time = time.time()
 
 
 def parsing(data):
-    a = UrlParsingDriver(data=data, count=3)
+    a = UrlParsingDriver(data=data, count=2)
     test = a.search_data()
     return test
 
