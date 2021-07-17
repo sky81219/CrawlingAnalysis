@@ -17,7 +17,7 @@ def log():
     logger.addHandler(stream_handler)
 
     # log 를 파일에 출력
-    file_handler = logging.FileHandler('my.log')
+    file_handler = logging.FileHandler('data_crawling.log')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
