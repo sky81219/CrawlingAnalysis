@@ -1,6 +1,7 @@
 """
 대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 (내가 진행하고있음)
 """
+import logging
 import re
 import threading
 from queue import Queue
@@ -11,7 +12,7 @@ from urllib.parse import urlparse
 from Crawling.core_parsing.utility import GoogleSeleniumUtility
 
 
-def queue_data(data):
+def queue_data():
     visit_site = Queue()
     visited_site = Queue()
     expected_site = Queue()
@@ -23,6 +24,10 @@ class UrlCreate(threading.Thread):
         threading.Thread.__init__(self)
         self.url = url
 
+    # threading 할당
+    def run(self):
+        UrlCreate()
+
     def url_create(self):
         return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
 
@@ -31,9 +36,9 @@ class UrlCreate(threading.Thread):
         link = self.url_create() + url if url.startswith('/') else url
         return link
 
+
 # url create 객체 선언
 create_url = UrlCreate()
-
 
 # html data paring
 class UrlParsingDriver(GoogleSeleniumUtility):
@@ -49,6 +54,8 @@ class UrlParsingDriver(GoogleSeleniumUtility):
             soup = BeautifulSoup(html_data, 'html.parser')
             for a_tag in soup.find('div', id='rso').find_all('a'):
                 get_link = a_tag['href']
+                req = requests.get(get_link).status_code
+                logging.info(f'link -> {get_link}, status_code -> {req}')
 
                 if self.ignore_url.findall(get_link) or self.ignore_search.findall(get_link):
                     continue

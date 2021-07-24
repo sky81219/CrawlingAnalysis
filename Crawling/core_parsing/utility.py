@@ -19,7 +19,6 @@ daum = dir id inner_article
 import datetime
 import time
 
-import bs4
 from pymongo import MongoClient
 from Crawling.core_parsing import create_log
 
@@ -91,7 +90,7 @@ class GoogleSeleniumUtility:
             html_source.append(driver.page_source)
 
             # 딜레이 3초
-            time.sleep(3)
+            time.sleep(2)
 
             # 스크롤 down
             return self.scroll_down
@@ -109,7 +108,7 @@ class GoogleSeleniumUtility:
             # page html 가져오기 딜레이 3초
             html_data = driver.page_source
             html_source.append(html_data)
-            time.sleep(3)
+            time.sleep(2)
 
         driver.quit()
         return html_source
