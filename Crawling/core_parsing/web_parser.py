@@ -2,8 +2,10 @@
 대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 (내가 진행하고있음)
 """
 import re
+import threading
 from queue import Queue
 
+import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from Crawling.core_parsing.utility import GoogleSeleniumUtility
@@ -14,16 +16,13 @@ def queue_data(data):
     visited_site = Queue()
     expected_site = Queue()
 
-# html data paring
-class UrlParsingDriver(GoogleSeleniumUtility):
-    def __init__(self, data, count=5, url='https://google.com'):
-        super(UrlParsingDriver, self).__init__(data=data, count=count, url=url)
-        self.ignore_tag = '#'
-        self.ignore_url = re.compile('^(http|https)+://(webcache)')
-        self.ignore_search = re.compile('^/(search)|(related:)')
+
+# url create documentation
+class UrlCreate(threading.Thread):
+    def __init__(self, url='https://google.com'):
+        threading.Thread.__init__(self)
         self.url = url
 
-    # URL 스키마 잠금 함수
     def url_create(self):
         return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
 
@@ -31,6 +30,18 @@ class UrlParsingDriver(GoogleSeleniumUtility):
     def url_addition(self, url):
         link = self.url_create() + url if url.startswith('/') else url
         return link
+
+# url create 객체 선언
+create_url = UrlCreate()
+
+
+# html data paring
+class UrlParsingDriver(GoogleSeleniumUtility):
+    def __init__(self, data, count=2):
+        super(UrlParsingDriver, self).__init__(data=data, count=count)
+        self.ignore_tag = '#'
+        self.ignore_url = re.compile('^(http|https)+://(webcache)')
+        self.ignore_search = re.compile('^/(search)|(related:)')
 
     def search_data(self):
         # a tag -> h3 tag location
@@ -45,7 +56,7 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                     continue
 
                 if get_link is not None:
-                    total_search = self.url_addition(get_link)
+                    total_search = create_url.url_addition(get_link)
                     print(total_search)
 
             for h3_tag in soup.find_all('h3', {'class': 'LC20lb DKV0Md'}):
