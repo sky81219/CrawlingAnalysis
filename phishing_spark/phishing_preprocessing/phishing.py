@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from urllib.error import URLError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-import whois
 import ipaddress
 from tld import get_tld
 from googlesearch import search
@@ -85,36 +84,7 @@ class PhishingPreprocessing:
         try:
             ipaddress.ip_address(self.url)
             return 1
-        except:
-            return -1
-
-    def get_total_date(self):
-        try:
-            domain = whois.Domain(self.url)
-            if type(domain.expiration_date) is list:
-                expiration_date = domain.expiration_date[0]
-            else:
-                expiration_date = domain.expiration_date
-
-            if type(domain.last_updated) is list:
-                updated_date = domain.last_updated[0]
-            else:
-                updated_date = domain.last_updated
-
-            total_date = (expiration_date - updated_date).days
-            return total_date
-        except (whois.exceptions.WhoisCommandFailed, TypeError, requests.exceptions.TooManyRedirects, UnicodeError,
-                requests.exceptions.InvalidSchema):
-            return -1
-
-    def domain_registration_length(self):
-        try:
-            total_date = self.get_total_date()
-            if total_date <= 1264:
-                return -1
-            else:
-                return 0
-        except (whois.exceptions.WhoisCommandFailed, URLError, requests.exceptions.InvalidSchema):
+        except (requests.exceptions.HTTPError, requests.exceptions.ReadTimeout):
             return -1
 
     def google_index(self):
@@ -179,9 +149,9 @@ class PhishingPreprocessing:
             "count-@": [self.having_symbol()], "special_chapter": [self.special_character()],
             "count-http": [self.count_http()], "count-https": [self.count_https()], "count-www": [self.count_www()],
             "count-digit": [self.numDigits()], "count-letter": [self.letter_count()], "count_dir": [self.no_of_dir()],
-            "Redirection": [self.redirection()], "google_index": [self.google_index()],
-            "url_length": [self.url_length()], "DomainRegistrationLength": [self.domain_registration_length()],
-            "HavingIp": [self.having_ip()], "sfh": [self.sfh()], "short_url_service": [self.shortening_service()]
+            "redirection": [self.redirection()], "google_index": [self.google_index()],
+            "url_length": [self.url_length()], "havingIp": [self.having_ip()], "sfh": [self.sfh()],
+            "short_url_service": [self.shortening_service()]
         }
         data = pd.DataFrame(data_)
         print(data)
