@@ -1,9 +1,10 @@
 """
 대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 (내가 진행하고있음)
 """
-import logging
 import re
+import logging
 import threading
+import ipaddress
 from queue import Queue
 
 import requests
@@ -16,6 +17,13 @@ def queue_data():
     visit_site = Queue()
     visited_site = Queue()
     expected_site = Queue()
+
+def having_ip(url):
+    try:
+        a = ipaddress.ip_address(url)
+        return a
+    except:
+        return -1
 
 
 # url create documentation
@@ -55,7 +63,7 @@ class UrlParsingDriver(GoogleSeleniumUtility):
             for a_tag in soup.find('div', id='rso').find_all('a'):
                 get_link = a_tag['href']
                 req = requests.get(get_link).status_code
-                logging.info(f'link -> {get_link}, status_code -> {req}')
+                logging.info(f'link -> {get_link}, status_code -> {req}, ip -> {having_ip(get_link)}')
 
                 if self.ignore_url.findall(get_link) or self.ignore_search.findall(get_link):
                     continue
