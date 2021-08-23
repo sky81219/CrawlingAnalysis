@@ -2,9 +2,17 @@ from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 
 def crawling_data(data):
-    html = UrlParsingDriver(data, count=3)
+    html = UrlParsingDriver(data, count=1)
     data = html.search_data()
     return data
 
 
-crawling_data(data='convolutionalAutoencoder')
+crawling_data(data='cnn')
+
+
+"""
+//*[@id="_ktkjYZbGNND1-QbZn73ICg33"]/div[1]/div/div/div/div/div/div/div[1]/a
+//*[@id="rso"]/div[2]/div/div/div/div[1]/a
+//*[@id="rso"]/div[4]/div/div/div[1]/a
+//*[@id="rso"]/div[5]/div/div/div[1]/a
+"""

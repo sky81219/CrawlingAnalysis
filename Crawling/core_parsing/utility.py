@@ -18,69 +18,75 @@ daum = dir id inner_article
 """
 import datetime
 import time
+import os
 
 from pymongo import MongoClient
 from Crawling.core_parsing import create_log
 
-import chromedriver_autoinstaller
-import geckodriver_autoinstaller
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
 
-# 드라이버 확인(다운로드) 하는 객체
-firefox_download = geckodriver_autoinstaller.install()
-chrome_download = chromedriver_autoinstaller.install()
-
 # 로그
 logging = create_log.log()
 
+option_chrome = webdriver.ChromeOptions()
+option_chrome.add_argument('headless')
+option_chrome.add_argument("disable-gpu")
+option_chrome.add_argument("disable-infobars")
+option_chrome.add_argument("--disable-extensions")
 
-# download driver firefox
-def fire_driver():
-    logging.info(f'FireFox Webdriver PATH -> {firefox_download}')
-    return webdriver.Firefox()
+# 속도
+prefs = {'profile.default_content_setting_values'
+         : {'cookies': 2, 'images': 2, 'plugins': 2, 'popups': 2, 'geolocation': 2, 'notifications': 2,
+            'auto_select_certificate': 2, 'fullscreen': 2, 'mouselock': 2, 'mixed_script': 2, 'media_stream': 2,
+            'media_stream_mic': 2, 'media_stream_camera': 2, 'protocol_handlers': 2, 'ppapi_broker': 2,
+            'automatic_downloads': 2, 'midi_sysex': 2, 'push_messaging': 2, 'ssl_cert_decisions': 2,
+            'metro_switch_to_desktop': 2, 'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement': 2,
+            'durable_storage': 2}
+         }
 
+option_chrome.add_experimental_option('prefs', prefs)
 
-# download driver chrome
-def chrome_driver():
-    logging.info(f'Chrome Webdriver PATH -> {chrome_download}')
-    return webdriver.Chrome()
-
-
-# download select driver
-def select_driver():
-    print('what do you want web? 1.Chrome 2.Firefox --> ', end='')
-    select = input()
-
-    if '1' == select:
-        return chrome_driver()
-    elif '2' == select:
-        return fire_driver()
-
+# chromedriver_path
+path = os.path.abspath(path="chromedriver")
 
 # driver
-driver = select_driver()
+driver = webdriver.Chrome(path, options=option_chrome)
+logging.info(f'start time in --> {start_time}')
+
 html_source = []
 
 
 class GoogleSeleniumUtility:
-    logging.info(f'start time in --> {start_time}')
-
-    def __init__(self, data=None, count=5, url='https://google.com'):
+    def __init__(self, data=None, count=5, search_url_count=10, url='https://google.com'):
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
         self.data = data
         self.count = count
         self.url = url
+        self.search_url_count = search_url_count
+
+    """
+    def click_url(self):
+        try:
+            for i in range(1, self.search_url_count):
+                time.sleep(3)
+                click_url = driver.find_element_by_xpath(f'//*[@id="rso"]/div[{i}]/div/div/div[1]/')
+                click_url.find_element_by_tag_name('a').click()
+                driver.back()
+        except:
+            print('Not found page')
+    """
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
         driver.get(self.url)
         logging.info(f'Start Search in Crawling... {1} page Checking')
 
-        def google_search_util():
+        def google_search_scroll_down():
             # google xpath location
             google_search = driver.find_element_by_xpath(self.google_search_xpath)
             # 보내는 키
@@ -89,13 +95,13 @@ class GoogleSeleniumUtility:
 
             html_source.append(driver.page_source)
 
-            # 딜레이 3초
+            # 딜레이 2초
             time.sleep(2)
 
             # 스크롤 down
             return self.scroll_down
 
-        return google_search_util()
+        return google_search_scroll_down()
 
     # page search count
     def next_page_injection(self):
