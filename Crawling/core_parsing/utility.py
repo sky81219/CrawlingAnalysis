@@ -52,7 +52,7 @@ prefs = {'profile.default_content_setting_values'
 option_chrome.add_experimental_option('prefs', prefs)
 
 # chromedriver_path
-path = os.path.abspath(path="chromedriver")
+path = os.path.abspath(path="../parser_test/chromedriver")
 
 # driver
 driver = webdriver.Chrome(path, options=option_chrome)

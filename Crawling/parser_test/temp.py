@@ -2,12 +2,12 @@ from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 
 def crawling_data(data):
-    html = UrlParsingDriver(data, count=1)
+    html = UrlParsingDriver(data, count=5)
     data = html.main_steam()
     return data
 
 
-crawling_data(data='cnn')
+crawling_data(data='python')
 
 
 """

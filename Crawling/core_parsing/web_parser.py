@@ -65,7 +65,6 @@ class UrlParsingDriver(GoogleSeleniumUtility):
         try:
             # google search div box <div id='rso>
             for a_tag in self.soup.find('div', id='rso').find_all('a'):
-                time.sleep(1)
                 get_link = a_tag['href']
 
                 get_text = a_tag.text
@@ -78,7 +77,7 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {req}')
                 link_s.append(get_link)
 
-                return link_s
+            return link_s
         except (exceptions.ConnectionError, exceptions.RequestException):
             raise TypeError
 
@@ -88,7 +87,6 @@ class UrlParsingDriver(GoogleSeleniumUtility):
             # web domain address additional in startswith('/)
             # ex ) naver.com => https://www.naver.com
             total_search = create_url.url_addition(link_add)
-            time.sleep(1)
             # click_url(url=total_search)
             visit_site.append(total_search)
 
@@ -96,6 +94,4 @@ class UrlParsingDriver(GoogleSeleniumUtility):
         soup = self.next_page_injection()
         for i in soup:
             self.soup = BeautifulSoup(i, 'html.parser')
-
-            self.search_data()
             self.get_url()
