@@ -3,7 +3,7 @@ from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 def crawling_data(data):
     html = UrlParsingDriver(data, count=1)
-    data = html.search_data()
+    data = html.main_steam()
     return data
 
 

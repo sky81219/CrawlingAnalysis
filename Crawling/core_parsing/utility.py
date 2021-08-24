@@ -23,8 +23,9 @@ import os
 from pymongo import MongoClient
 from Crawling.core_parsing import create_log
 
+import requests
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -34,8 +35,8 @@ logging = create_log.log()
 
 option_chrome = webdriver.ChromeOptions()
 option_chrome.add_argument('headless')
-option_chrome.add_argument("disable-gpu")
-option_chrome.add_argument("disable-infobars")
+# option_chrome.add_argument("disable-gpu")
+# option_chrome.add_argument("disable-infobars")
 option_chrome.add_argument("--disable-extensions")
 
 # 속도
@@ -61,25 +62,12 @@ html_source = []
 
 
 class GoogleSeleniumUtility:
-    def __init__(self, data=None, count=5, search_url_count=10, url='https://google.com'):
+    def __init__(self, data=None, count=5, url='https://google.com'):
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
         self.data = data
         self.count = count
         self.url = url
-        self.search_url_count = search_url_count
-
-    """
-    def click_url(self):
-        try:
-            for i in range(1, self.search_url_count):
-                time.sleep(3)
-                click_url = driver.find_element_by_xpath(f'//*[@id="rso"]/div[{i}]/div/div/div[1]/')
-                click_url.find_element_by_tag_name('a').click()
-                driver.back()
-        except:
-            print('Not found page')
-    """
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
@@ -118,6 +106,11 @@ class GoogleSeleniumUtility:
 
         driver.quit()
         return html_source
+
+# 셀레니움으로 modify
+def click_url(url):
+    res = requests.get(url)
+    print(res.text)
 
 
 class MongoDbManager:
