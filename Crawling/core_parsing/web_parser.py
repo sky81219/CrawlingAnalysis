@@ -4,7 +4,6 @@
 import re
 import time
 import logging
-import threading
 from collections import deque
 
 import requests
@@ -24,7 +23,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # database
 insert_base = database.MysqlConnect()
 
-
 # html data paring
 class UrlParsingDriver(GoogleSeleniumUtility):
     def __init__(self, data, count=5):
@@ -37,7 +35,6 @@ class UrlParsingDriver(GoogleSeleniumUtility):
     def search_data(self):
         if self.soup is None:
             return
-
         # a tag -> h3 tag location
         # GoogleSeleniumUtility 상속
         try:
@@ -46,6 +43,8 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 # href data 수집
                 get_link = a_tag['href']
                 get_text = a_tag.text
+                status = requests.get(get_link, verify=False).status_code
+                time.sleep(1)
 
                 if self.ignore_url.findall(get_link) or self.ignore_search.findall(get_link):
                     continue
@@ -53,20 +52,18 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                     continue
 
                 # web page status code 200 ~ 405
-                status = requests.get(get_link, verify=False).status_code
                 logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {status}')
-                total_url = UrlCreate(object_url=get_link).url_addition()
+                total_url = UrlCreate().url_addition(get_link)
                 a = CounterTag().count_tag_url(total_url)
                 # db insert
-                insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
-                insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
-                time.sleep(1)
-
-        except (exceptions.ConnectionError, exceptions.RequestException):
-            raise TypeError
+                # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
+                # insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
+        except (exceptions.ConnectionError, exceptions.RequestException, exceptions.MissingSchema,
+                exceptions.HTTPError):
+            print('Error or schemaMissing')
 
     def main_stream(self):
-        soup = self.next_page_injection()
+        soup = self.next_page_google_injection()
         for i in soup:
             self.soup = BeautifulSoup(i, 'lxml')
             self.search_data()
@@ -74,17 +71,15 @@ class UrlParsingDriver(GoogleSeleniumUtility):
 
 # url create documentation
 class UrlCreate:
-    def __init__(self, object_url, url='https://google.com'):
+    def __init__(self, url='https://google.com'):
         self.url = url
-        self.object_url = object_url
 
     def url_create(self):
         return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
 
     # /~ 로 끝나는 url 붙여주는 함수
-    def url_addition(self):
-        link = self.url_create() + self.object_url if self.object_url.startswith('/') \
-            else self.object_url
+    def url_addition(self, url):
+        link = self.url_create() + url if url.startswith('/') else url
         return link
 
 

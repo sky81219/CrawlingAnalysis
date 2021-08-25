@@ -2,9 +2,8 @@ from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 
 def crawling_data(data):
-    html = UrlParsingDriver(data, count=10)
-    data = html.main_stream()
-    return data
+    a = UrlParsingDriver(data, count=1)
+    a.main_stream()
 
 
 crawling_data(data='convolutional autoencoder')
