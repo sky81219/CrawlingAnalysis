@@ -25,7 +25,7 @@ from Crawling.core_parsing import create_log
 
 import requests
 from selenium import webdriver
-
+from bs4 import BeautifulSoup
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -62,7 +62,7 @@ html_source = []
 
 
 class GoogleSeleniumUtility:
-    def __init__(self, data=None, count=5, url='https://google.com'):
+    def __init__(self, count, data=None, url='https://google.com'):
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
         self.data = data
@@ -107,13 +107,4 @@ class GoogleSeleniumUtility:
         driver.quit()
         return html_source
 
-# 셀레니움으로 modify
-def click_url(url):
-    res = requests.get(url)
-    print(res.text)
 
-
-class MongoDbManager:
-    def __init__(self, loot, port):
-        self.instance = None
-        self.client = MongoClient(loot, port)
