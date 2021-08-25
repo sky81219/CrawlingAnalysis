@@ -56,7 +56,7 @@ option_chrome.add_experimental_option('prefs', prefs)
 path = os.path.abspath(path="../parser_test/chromedriver")
 
 # driver
-driver = webdriver.Chrome(path)
+driver = webdriver.Chrome(path, options=option_chrome)
 logging.info(f'start time in --> {start_time}')
 
 html_source = []
