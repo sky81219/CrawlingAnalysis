@@ -56,10 +56,11 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 status = requests.get(get_link, verify=False).status_code
                 logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {status}')
                 total_url = UrlCreate(object_url=get_link).url_addition()
-                a = CounterTag().count_a_tag_url(total_url)
+                a = CounterTag().count_tag_url(total_url)
                 # db insert
-                # insert_base.url_status_db_insert(total_url, status, get_text, a[0])
-                insert_base.url_tag_db_insert(total_url, a[0], a[1], a[2])
+                insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
+                insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
+                time.sleep(1)
 
         except (exceptions.ConnectionError, exceptions.RequestException):
             raise TypeError
@@ -67,7 +68,7 @@ class UrlParsingDriver(GoogleSeleniumUtility):
     def main_stream(self):
         soup = self.next_page_injection()
         for i in soup:
-            self.soup = BeautifulSoup(i, 'lxml-xml')
+            self.soup = BeautifulSoup(i, 'lxml')
             self.search_data()
 
 
@@ -82,7 +83,8 @@ class UrlCreate:
 
     # /~ 로 끝나는 url 붙여주는 함수
     def url_addition(self):
-        link = self.url_create() + self.object_url if self.object_url.startswith('/') else self.object_url
+        link = self.url_create() + self.object_url if self.object_url.startswith('/') \
+            else self.object_url
         return link
 
 
@@ -90,10 +92,15 @@ class CounterTag:
     def __init__(self):
         self.soup = None
 
-    def count_a_tag_url(self, url):
+    def count_tag_url(self, url):
         res = requests.get(url)
-        soup = self.soup = BeautifulSoup(res.content, 'lxml-xml')
+        soup = self.soup = BeautifulSoup(res.content, 'lxml')
         a_count = [a_tag for a_tag in soup.find_all('a')]
-        href = [a_tag['href'] for a_tag in soup.find_all('a')]
+        a_href = [0 if a_tag == KeyError else a_tag.href for a_tag in soup.find_all('a')]
+        link_count = [a_tag for a_tag in soup.find_all('link')]
+        link_href = [0 if a_tag == KeyError else a_tag.href for a_tag in soup.find_all('link')]
         text = [a_tag.h3 for a_tag in soup.find_all('a')]
-        return len(a_count), len(href), len(text)
+
+        return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
+
+
