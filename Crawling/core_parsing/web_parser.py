@@ -43,8 +43,6 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 # href data 수집
                 get_link = a_tag['href']
                 get_text = a_tag.text
-                status = requests.get(get_link, verify=False).status_code
-                time.sleep(1)
 
                 if self.ignore_url.findall(get_link) or self.ignore_search.findall(get_link):
                     continue
@@ -52,14 +50,21 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                     continue
 
                 # web page status code 200 ~ 405
+                status = requests.get(get_link, verify=False).status_code
+                time.sleep(1)
+
+                # log
                 logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {status}')
+
                 total_url = UrlCreate().url_addition(get_link)
                 a = CounterTag().count_tag_url(total_url)
+
                 # db insert
-                # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
-                # insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
-        except (exceptions.ConnectionError, exceptions.RequestException, exceptions.MissingSchema,
-                exceptions.HTTPError):
+                insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
+                insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
+
+        except (exceptions.ConnectionError, exceptions.RequestException,
+                exceptions.MissingSchema, exceptions.HTTPError):
             print('Error or schemaMissing')
 
     def main_stream(self):
