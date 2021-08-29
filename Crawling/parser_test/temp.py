@@ -2,7 +2,7 @@ from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 
 def crawling_data(data):
-    a = UrlParsingDriver(data, count=3)
+    a = UrlParsingDriver(data, count=10)
     a.main_stream()
 
 

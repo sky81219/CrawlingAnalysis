@@ -32,6 +32,14 @@ class UrlParsingDriver(GoogleSeleniumUtility):
         self.ignore_search = re.compile('^/(search)|(related:)')
         self.soup = None
 
+    def url_create(self):
+        return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
+
+    # /~ 로 끝나는 url 붙여주는 함수
+    def url_addition(self, url):
+        link = self.url_create() + url if url.startswith('/') else url
+        return link
+
     def search_data(self):
         if self.soup is None:
             return
@@ -56,7 +64,7 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 # log
                 logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {status}')
 
-                total_url = UrlCreate().url_addition(get_link)
+                total_url = self.url_addition(get_link)
                 a = CounterTag().count_tag_url(total_url)
 
                 # db insert
@@ -72,20 +80,6 @@ class UrlParsingDriver(GoogleSeleniumUtility):
         for i in soup:
             self.soup = BeautifulSoup(i, 'lxml')
             self.search_data()
-
-
-# url create documentation
-class UrlCreate:
-    def __init__(self, url='https://google.com'):
-        self.url = url
-
-    def url_create(self):
-        return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
-
-    # /~ 로 끝나는 url 붙여주는 함수
-    def url_addition(self, url):
-        link = self.url_create() + url if url.startswith('/') else url
-        return link
 
 
 class CounterTag:
