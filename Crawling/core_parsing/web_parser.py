@@ -11,6 +11,7 @@ import urllib3
 from bs4 import BeautifulSoup
 from requests import exceptions
 from urllib.parse import urlparse
+
 from Crawling.core_parsing import database
 from Crawling.core_parsing.utility import GoogleSeleniumUtility
 
@@ -68,8 +69,8 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 a = CounterTag().count_tag_url(total_url)
 
                 # db insert
-                insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
-                insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
+                # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
+                # insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
 
         except (exceptions.ConnectionError, exceptions.RequestException,
                 exceptions.MissingSchema, exceptions.HTTPError):
