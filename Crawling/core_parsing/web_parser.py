@@ -35,14 +35,13 @@ Sele
 
 # html data paring
 class UrlParsingDriver(threading.Thread):
-    def __init__(self, url=None, html_code=None):
+    def __init__(self, url=None):
         threading.Thread.__init__(self)
         self.ignore_tag = '#'
         self.ignore_url = re.compile('^(http|https)+://(webcache)')
         self.ignore_search = re.compile('^/(search)|(related:)')
-        self.soup = None
         self.url = url
-        self.html_code = html_code
+        self.soup = None
 
     def run(self):
         self.search_data()
@@ -91,10 +90,9 @@ class UrlParsingDriver(threading.Thread):
                 exceptions.MissingSchema, exceptions.HTTPError):
             print('Error or schemaMissing')
 
-    def main_stream(self, html_code):
-        self.soup(html_code, "lxml")
+    def main_stream(self, html_data):
+        self.soup = BeautifulSoup(html_data, "lxml")
         self.search_data()
-
 
 class CounterTag:
     def __init__(self):
@@ -112,5 +110,7 @@ class CounterTag:
         return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
 
 
-t = UrlParsingDriver()
-t.run()
+if "__main__" == __name__:
+    t = UrlParsingDriver()
+    t.daemon = True
+    t.start()

@@ -26,6 +26,7 @@ import os
 from Crawling.core_parsing import create_log
 from Crawling.core_parsing.web_parser import UrlParsingDriver
 
+from bs4 import BeautifulSoup
 from selenium import webdriver
 
 
@@ -91,16 +92,19 @@ class GoogleSeleniumUtility(UrlParsingDriver):
     # page search count:
     def next_page_google_injection(self):
         self.search_injection(self.google_search_xpath)
-        for i in range(2, self.count + 1):
-            logging.info(f'google Search in Crawling... {i} page Checking')
-            google_next_page = driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
-            google_next_page.click()
 
-            # page html 가져오기 딜레이 3초
-            html_source = driver.page_source
-            html_code = html_source
-            self.main_stream(html_code)
-            time.sleep(2)
+        # 소스 가져다 주는 일급 함수
+        def page_source():
+            for i in range(2, self.count + 1):
+                logging.info(f'google Search in Crawling... {i} page Checking')
+                google_next_page = driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
+                google_next_page.click()
 
-        driver.quit()
+                # page html 가져오기 딜레이 3초
+                html_data = driver.page_source
+                self.main_stream(html_data)
+                time.sleep(2)
 
+            driver.quit()
+
+        return page_source()
