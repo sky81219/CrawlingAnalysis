@@ -20,15 +20,15 @@ bing 다시 찾아야함 xpath search 실패
 본 로직을 거꾸로 돌릴려고함 셀레니움이 파싱 기능을 상속을 받아야함
 """
 import datetime
+
 import time
 import os
 
 from Crawling.core_parsing import create_log
 from Crawling.core_parsing.web_parser import UrlParsingDriver
 
-from bs4 import BeautifulSoup
 from selenium import webdriver
-
+from pathos.multiprocessing import ProcessingPool as Pool
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -58,40 +58,40 @@ option_chrome.add_experimental_option('prefs', prefs)
 path = os.path.abspath(path="../parser_test/chromedriver")
 
 # driver
-driver = webdriver.Chrome(path, options=option_chrome)
 logging.info(f'start time in --> {start_time}')
+
+class ParserTotal:
+    def __int__(self):
+        self.pool = Pool(processes=2)
+
+    def open_browser(self, site):
+        driver = webdriver.Chrome(path, options=option_chrome)
+        driver.get(site)
+
+    def multi_processing(self):
+        site = ["https://www.naver.com", "https://www.bing.com"]
+        self.pool.map(self.open_browser, site)
+
+
 
 class GoogleSeleniumUtility(UrlParsingDriver):
     def __init__(self, count=3, data=None, url='https://www.google.com'):
         super(GoogleSeleniumUtility, self).__init__(url)
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
-        self.bing_search_xpath = '//*[@id="sb_form_q"]'  # bing xpath
-        self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
-        self.data = data
         self.count = count
         self.url = url
+        self.data = data
 
     # 검색 -> 검색한 URL 로 넘어가기
-    def search_injection(self, xpath):
+    def search_injection(self):
         driver.get(self.url)
-        logging.info(f'Start Search in Crawling... {1} page Checking')
-
-        def google_search_scroll_down():
-            # google xpath location
-            google_search = driver.find_element_by_xpath(xpath)
-            # 보내는 키
-            google_search.send_keys(self.data)
-            google_search.submit()
-            # 딜레이 2초
-            time.sleep(2)
-            # 스크롤 down
-            return self.scroll_down
-
-        return google_search_scroll_down()
+        logging.info(f'Start google Search in Crawling... {1} page Checking')
+        down = search_scroll_down(self.google_search_xpath, data=self.data)
+        return down
 
     # page search count:
     def next_page_google_injection(self):
-        self.search_injection(self.google_search_xpath)
+        self.search_injection()
 
         # 소스 가져다 주는 일급 함수
         def page_source():
@@ -108,3 +108,57 @@ class GoogleSeleniumUtility(UrlParsingDriver):
             driver.quit()
 
         return page_source()
+
+
+class BingSeleniumUtility(UrlParsingDriver):
+    def __init__(self, count=3, data=None, url='https://www.bing.com'):
+        super(BingSeleniumUtility, self).__init__(url)
+        self.bing_search_xpath = '//*[@id="sb_form_q"]'  # bing xpath
+        self.count = count
+        self.data = data
+        self.url = url
+
+    # 검색 -> 검색한 URL 로 넘어가기
+    def search_injection(self):
+        driver.get(self.url)
+        logging.info(f'Start bing Search in Crawling... {1} page Checking')
+        down = search_scroll_down(self.bing_search_xpath, data=self.data)
+        return down
+
+    # page search count:
+    def next_page_bing_injection(self):
+        self.search_injection()
+
+        # 소스 가져다 주는 일급 함수
+        def page_source():
+            for i in range(2, self.count + 1):
+                logging.info(f'search bing in Crawling... {i} page Checking')
+                google_next_page = driver.find_elements_by_css_selector(f"#b_results > li.b_pag > nav > ul > "
+                                                                        f"li:nth-child({i}) > a")
+                google_next_page.click()
+
+                # page html 가져오기 딜레이 3초
+                html_data = driver.page_source
+                self.main_stream(html_data)
+                time.sleep(2)
+
+            driver.quit()
+
+        return page_source()
+
+
+
+def search_scroll_down(xpath, data):
+    # 스크롤 다운
+    scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
+
+    # xpath location
+    google_search = driver.find_element_by_xpath(xpath)
+    # 보내는 키
+    google_search.send_keys(data)
+    google_search.submit()
+
+    # 딜레이 2초
+    time.sleep(2)
+
+    return scroll_down

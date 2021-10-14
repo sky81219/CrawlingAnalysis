@@ -4,7 +4,7 @@
 import re
 import time
 import logging
-import threading
+import multiprocessing
 from collections import deque
 
 import requests
@@ -34,9 +34,8 @@ Sele
 
 
 # html data paring
-class UrlParsingDriver(threading.Thread):
+class UrlParsingDriver:
     def __init__(self, url=None):
-        threading.Thread.__init__(self)
         self.ignore_tag = '#'
         self.ignore_url = re.compile('^(http|https)+://(webcache)')
         self.ignore_search = re.compile('^/(search)|(related:)')
@@ -111,6 +110,13 @@ class CounterTag:
 
 
 if "__main__" == __name__:
-    t = UrlParsingDriver()
-    t.daemon = True
-    t.start()
+    parser = UrlParsingDriver()
+
+    p1 = multiprocessing.Process(target=parser.search_data, args=())
+    p1.start()
+
+    p2 = multiprocessing.Process(target=parser.url_create, args=())
+    p2.start()
+
+    p1.join()
+    p2.join()
