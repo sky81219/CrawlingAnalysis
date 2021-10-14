@@ -32,6 +32,7 @@ UrlParsing
 Sele
 """
 
+
 # html data paring
 class UrlParsingDriver(threading.Thread):
     def __init__(self, url=None, html_code=None):
@@ -44,7 +45,8 @@ class UrlParsingDriver(threading.Thread):
         self.html_code = html_code
 
     def run(self):
-        self.main_stream(html_code=self.html_code)
+        self.search_data()
+        self.url_create()
 
     def url_create(self):
         return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
@@ -60,7 +62,7 @@ class UrlParsingDriver(threading.Thread):
         # a tag -> h3 tag location
         # GoogleSeleniumUtility 상속
         try:
-            # google search div box <div id='rso>
+            # google search div box <div id='rso'>
             for a_tag in self.soup.find('div', id='rso').find_all('a'):
                 # href data 수집
                 get_link = a_tag['href']
@@ -90,7 +92,7 @@ class UrlParsingDriver(threading.Thread):
             print('Error or schemaMissing')
 
     def main_stream(self, html_code):
-        self.soup = BeautifulSoup(html_code, 'lxml')
+        self.soup(html_code, "lxml")
         self.search_data()
 
 
@@ -110,7 +112,5 @@ class CounterTag:
         return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
 
 
-if __name__ == "__main__":
-    t = UrlParsingDriver()
-    t.run()
-
+t = UrlParsingDriver()
+t.run()

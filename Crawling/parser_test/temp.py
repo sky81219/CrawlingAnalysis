@@ -1,13 +1,12 @@
 from Crawling.core_parsing.utility import GoogleSeleniumUtility
 
+def search(data, count):
+    test = GoogleSeleniumUtility(count=count, data=data)
+    t = test.next_page_google_injection()
+    return t
 
-def crawling_data(data, count=3):
-    parsing_data = GoogleSeleniumUtility(data, count)
-    parsing_data.next_page_google_injection()
 
-
-crawling_data(data='hello')
-
+search("hello", 3)
 
 """
 //*[@id="_ktkjYZbGNND1-QbZn73ICg33"]/div[1]/div/div/div/div/div/div/div[1]/a
