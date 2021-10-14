@@ -5,19 +5,10 @@
         -크롤링 예비 가져오기
         -crawling -> JSON - redis DB
 
-rule
-page 기초 값으로 3페이지를 기본값으로 설정
-chrome 과 firefox 지정 값 설정
-google naver daum 임시적 성공
-
-naver = dir id main_pack
-daum = dir id inner_article
-# self.korea_search_xpath = '//input[@title="검색어 입력"]'  # korea naver, kakao search xpath
-# self.google_search_xpath = '//input[@title="검색"]'  # korea google search xpath
-# self.korea_button = '//a[@class="btn"]'
-bing 다시 찾아야함 xpath search 실패
-
-본 로직을 거꾸로 돌릴려고함 셀레니움이 파싱 기능을 상속을 받아야함
+2차 목표
+    - Parser class 전체 클래스에 있는 driver 통합하는 과정
+    - 상속이 복잡해질꺼 같은데 시도해봐서 상속을 정리하는 방향
+    - ELK 적용해보기
 """
 import datetime
 import time
