@@ -1,12 +1,12 @@
-from Crawling.core_parsing.web_parser import UrlParsingDriver
+from Crawling.core_parsing.utility import GoogleSeleniumUtility
 
 
-def crawling_data(data):
-    a = UrlParsingDriver(data, count=3)
-    a.main_stream()
+def crawling_data(data, count=3):
+    parsing_data = GoogleSeleniumUtility(data, count)
+    parsing_data.next_page_google_injection()
 
 
-crawling_data(data='convolutional autoencoder')
+crawling_data(data='hello')
 
 
 """

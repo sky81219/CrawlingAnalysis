@@ -24,8 +24,10 @@ import time
 import os
 
 from Crawling.core_parsing import create_log
+from Crawling.core_parsing.web_parser import UrlParsingDriver
 
 from selenium import webdriver
+
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -59,15 +61,16 @@ path = os.path.abspath(path="../parser_test/chromedriver")
 driver = webdriver.Chrome(path, options=option_chrome)
 logging.info(f'start time in --> {start_time}')
 
-html_source = []
-class GoogleSeleniumUtility:
-    def __init__(self, count, data=None, url='https://www.google.com'):
+class GoogleSeleniumUtility(UrlParsingDriver):
+    def __init__(self, count=5, data=None, url='https://www.google.com'):
+        super(GoogleSeleniumUtility, self).__init__(self.url, self.html_code)
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.bing_search_xpath = '//*[@id="sb_form_q"]'  # bing xpath
         self.scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
         self.data = data
         self.count = count
         self.url = url
+        self.html_code = self.html_code
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self, xpath):
@@ -96,10 +99,9 @@ class GoogleSeleniumUtility:
             google_next_page.click()
 
             # page html 가져오기 딜레이 3초
-            html_data = driver.page_source
-            html_source.append(html_data)
+            self.html_code = driver.page_source
+            self.main_stream(self.html_code)
             time.sleep(2)
 
         driver.quit()
-        return html_source
 

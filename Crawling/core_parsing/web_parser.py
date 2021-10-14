@@ -4,6 +4,7 @@
 import re
 import time
 import logging
+import threading
 from collections import deque
 
 import requests
@@ -13,7 +14,6 @@ from requests import exceptions
 from urllib.parse import urlparse
 
 from Crawling.core_parsing import database
-from Crawling.core_parsing.utility import GoogleSeleniumUtility
 
 # 방문 큐 만들기 설계 진행해야함
 # visit_site = deque()
@@ -22,16 +22,29 @@ from Crawling.core_parsing.utility import GoogleSeleniumUtility
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # database
-insert_base = database.MysqlConnect()
+# insert_base = database.MysqlConnect()
+
+"""
+thread
+  ▲
+UrlParsing
+  ▲
+Sele
+"""
 
 # html data paring
-class UrlParsingDriver(GoogleSeleniumUtility):
-    def __init__(self, data, count=5):
-        super(UrlParsingDriver, self).__init__(data=data, count=count)
+class UrlParsingDriver(threading.Thread):
+    def __init__(self, url=None, html_code=None):
+        threading.Thread.__init__(self)
         self.ignore_tag = '#'
         self.ignore_url = re.compile('^(http|https)+://(webcache)')
         self.ignore_search = re.compile('^/(search)|(related:)')
         self.soup = None
+        self.url = url
+        self.html_code = html_code
+
+    def run(self):
+        self.main_stream(html_code=self.html_code)
 
     def url_create(self):
         return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
@@ -76,11 +89,9 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 exceptions.MissingSchema, exceptions.HTTPError):
             print('Error or schemaMissing')
 
-    def main_stream(self):
-        soup = self.next_page_google_injection()
-        for i in soup:
-            self.soup = BeautifulSoup(i, 'lxml')
-            self.search_data()
+    def main_stream(self, html_code):
+        self.soup = BeautifulSoup(html_code, 'lxml')
+        self.search_data()
 
 
 class CounterTag:
@@ -98,4 +109,8 @@ class CounterTag:
 
         return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
 
+
+if __name__ == "__main__":
+    t = UrlParsingDriver()
+    t.run()
 
