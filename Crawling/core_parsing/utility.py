@@ -20,15 +20,14 @@ bing 다시 찾아야함 xpath search 실패
 본 로직을 거꾸로 돌릴려고함 셀레니움이 파싱 기능을 상속을 받아야함
 """
 import datetime
-
 import time
 import os
 
 from Crawling.core_parsing import create_log
 from Crawling.core_parsing.web_parser import UrlParsingDriver
+from pathos.pools import ProcessPool as Pool
 
 from selenium import webdriver
-from pathos.multiprocessing import ProcessingPool as Pool
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -59,20 +58,18 @@ path = os.path.abspath(path="../parser_test/chromedriver")
 
 # driver
 logging.info(f'start time in --> {start_time}')
-
-class ParserTotal:
-    def __int__(self):
-        self.pool = Pool(processes=2)
-
+class Parser:
+    def __init__(self):
+        self.pool = Pool(processes=3)
+    """웹드라이버가 여기에 있으면 오류가 난다! 웹드라이버는 싱글스레드라서!"""
     def open_browser(self, site):
+        """ process별로 브라우저를 따로 열어주면 오류가 안 난다 """
         driver = webdriver.Chrome(path, options=option_chrome)
         driver.get(site)
 
     def multi_processing(self):
-        site = ["https://www.naver.com", "https://www.bing.com"]
-        self.pool.map(self.open_browser, site)
-
-
+        sites = ['https://www.google.com', 'https://bing.com']
+        self.pool.map(self.open_browser, sites)
 
 class GoogleSeleniumUtility(UrlParsingDriver):
     def __init__(self, count=3, data=None, url='https://www.google.com'):
@@ -84,7 +81,6 @@ class GoogleSeleniumUtility(UrlParsingDriver):
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
-        driver.get(self.url)
         logging.info(f'Start google Search in Crawling... {1} page Checking')
         down = search_scroll_down(self.google_search_xpath, data=self.data)
         return down
@@ -120,7 +116,6 @@ class BingSeleniumUtility(UrlParsingDriver):
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
-        driver.get(self.url)
         logging.info(f'Start bing Search in Crawling... {1} page Checking')
         down = search_scroll_down(self.bing_search_xpath, data=self.data)
         return down
@@ -147,7 +142,6 @@ class BingSeleniumUtility(UrlParsingDriver):
         return page_source()
 
 
-
 def search_scroll_down(xpath, data):
     # 스크롤 다운
     scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
@@ -162,3 +156,6 @@ def search_scroll_down(xpath, data):
     time.sleep(2)
 
     return scroll_down
+
+
+
