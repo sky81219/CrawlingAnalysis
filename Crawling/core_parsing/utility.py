@@ -66,7 +66,7 @@ class GoogleSeleniumUtility(UrlParsingDriver):
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
         logging.info(f'Start google Search in Crawling... {1} page Checking')
-        down = search_scroll_down(self.google_search_xpath, data=self.data)
+        down = search_scroll_down(self.google_search_xpath, data=self.data, driver=self.google_driver)
         return down
 
     # 소스 가져다 주는 일급 함수

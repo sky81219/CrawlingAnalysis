@@ -88,22 +88,12 @@ class UrlParsingDriver:
                 url_except.NewConnectionError):
             print('Error or schemaMissing')
 
-    def main_stream(self, html_data):
-        self.soup = BeautifulSoup(html_data, "lxml")
-        self.search_data()
-
-class CounterTag:
-    def __init__(self):
-        self.soup = None
-
-    def count_tag_url(self, url):
-        res = requests.get(url)
-        soup = self.soup = BeautifulSoup(res.content, 'lxml')
-        a_count = [a_tag for a_tag in soup.find_all('a')]
-        a_href = [0 if a_tag == KeyError else a_tag.href for a_tag in soup.find_all('a')]
-        link_count = [a_tag for a_tag in soup.find_all('link')]
-        link_href = [0 if a_tag == KeyError else a_tag.href for a_tag in soup.find_all('link')]
-        text = [a_tag.h3 for a_tag in soup.find_all('a')]
+    def count_tag_url(self):
+        a_count = [a_tag for a_tag in self.soup.find_all('a')]
+        a_href = [0 if a_tag == KeyError else a_tag.href for a_tag in self.soup.find_all('a')]
+        link_count = [a_tag for a_tag in self.soup.find_all('link')]
+        link_href = [0 if a_tag == KeyError else a_tag.href for a_tag in self.soup.find_all('link')]
+        text = [a_tag.h3 for a_tag in self.soup.find_all('a')]
 
         return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
 
