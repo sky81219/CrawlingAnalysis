@@ -16,8 +16,8 @@ import os
 
 from Crawling.core_parsing import create_log
 from Crawling.core_parsing.web_parser import UrlParsingDriver
-from pathos.pools import ProcessPool as Pool
 
+from threading import Thread
 from selenium import webdriver
 
 # 현재 시각하는 시간 설정
@@ -26,11 +26,13 @@ start_time = datetime.datetime.now()
 # 로그
 logging = create_log.log()
 
+"""
 option_chrome = webdriver.ChromeOptions()
 option_chrome.add_argument('headless')
 option_chrome.add_argument("disable-gpu")
 option_chrome.add_argument("disable-infobars")
 option_chrome.add_argument("--disable-extensions")
+
 
 # 속도
 prefs = {'profile.default_content_setting_values'
@@ -43,32 +45,23 @@ prefs = {'profile.default_content_setting_values'
          }
 
 option_chrome.add_experimental_option('prefs', prefs)
-
+"""
 # chromedriver_path
 path = os.path.abspath(path="../parser_test/chromedriver")
+web_driver = webdriver.Chrome(path)
 
 # driver
 logging.info(f'start time in --> {start_time}')
-class Parser:
-    def __init__(self):
-        self.pool = Pool(processes=3)
-    """웹드라이버가 여기에 있으면 오류가 난다! 웹드라이버는 싱글스레드라서!"""
-    def open_browser(self, site):
-        """ process별로 브라우저를 따로 열어주면 오류가 안 난다 """
-        driver = webdriver.Chrome(path, options=option_chrome)
-        driver.get(site)
 
-    def multi_processing(self):
-        sites = ['https://www.google.com', 'https://bing.com']
-        self.pool.map(self.open_browser, sites)
 
 class GoogleSeleniumUtility(UrlParsingDriver):
-    def __init__(self, count=3, data=None, url='https://www.google.com'):
+    def __init__(self, count, google_data=None, google_driver=None, url='https://www.google.com'):
         super(GoogleSeleniumUtility, self).__init__(url)
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.count = count
         self.url = url
-        self.data = data
+        self.data = google_data
+        self.google_driver = google_driver
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
@@ -76,64 +69,67 @@ class GoogleSeleniumUtility(UrlParsingDriver):
         down = search_scroll_down(self.google_search_xpath, data=self.data)
         return down
 
-    # page search count:
-    def next_page_google_injection(self):
+    # 소스 가져다 주는 일급 함수
+    def page_source(self):
+        self.google_driver.get(self.url)
         self.search_injection()
+        for i in range(2, self.count + 1):
+            logging.info(f'google Search in Crawling... {i} page Checking')
+            google_next_page = self.google_driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
+            google_next_page.click()
 
-        # 소스 가져다 주는 일급 함수
-        def page_source():
-            for i in range(2, self.count + 1):
-                logging.info(f'google Search in Crawling... {i} page Checking')
-                google_next_page = driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
-                google_next_page.click()
+            # page html 가져오기 딜레이 3초
+            html_data = self.google_driver.page_source
+            self.main_stream(html_data)
+            time.sleep(2)
 
-                # page html 가져오기 딜레이 3초
-                html_data = driver.page_source
-                self.main_stream(html_data)
-                time.sleep(2)
-
-            driver.quit()
-
-        return page_source()
+        self.google_driver.quit()
 
 
 class BingSeleniumUtility(UrlParsingDriver):
-    def __init__(self, count=3, data=None, url='https://www.bing.com'):
+    def __init__(self, count, bing_data=None, bing_driver=None, url='https://www.bing.com'):
         super(BingSeleniumUtility, self).__init__(url)
         self.bing_search_xpath = '//*[@id="sb_form_q"]'  # bing xpath
-        self.count = count
-        self.data = data
-        self.url = url
+        self.bing_count = count
+        self.bing_data = bing_data
+        self.bing_url = url
+        self.bing_driver = bing_driver
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
         logging.info(f'Start bing Search in Crawling... {1} page Checking')
-        down = search_scroll_down(self.bing_search_xpath, data=self.data)
+        down = search_scroll_down(self.bing_search_xpath, data=self.bing_data, driver=self.bing_driver)
         return down
 
-    # page search count:
-    def next_page_bing_injection(self):
+    # 소스 가져다 주는 일급 함수
+    def bing_page_source(self):
+        self.bing_driver.get(self.url)
         self.search_injection()
+        for i in range(2, self.bing_count + 1):
+            logging.info(f'search bing in Crawling... {i} page Checking')
+            google_next_page = self.bing_driver.find_element_by_xpath(f'//*[@id="b_results"]/li[16]/nav/ul/li[{i}]/a')
+            google_next_page.click()
 
-        # 소스 가져다 주는 일급 함수
-        def page_source():
-            for i in range(2, self.count + 1):
-                logging.info(f'search bing in Crawling... {i} page Checking')
-                google_next_page = driver.find_elements_by_css_selector(f"#b_results > li.b_pag > nav > ul > "
-                                                                        f"li:nth-child({i}) > a")
-                google_next_page.click()
+            # page html 가져오기 딜레이 3초
+            html_data = self.bing_driver.page_source
+            self.main_stream(html_data)
+            time.sleep(2)
 
-                # page html 가져오기 딜레이 3초
-                html_data = driver.page_source
-                self.main_stream(html_data)
-                time.sleep(2)
-
-            driver.quit()
-
-        return page_source()
+        self.bing_driver.quit()
 
 
-def search_scroll_down(xpath, data):
+class Parser(Thread):
+    def __init__(self, page_count, text=None, driver=web_driver):
+        Thread.__init__(self)
+        """웹드라이버가 여기에 있으면 오류가 난다! 웹드라이버는 싱글스레드라서!"""
+        self.driver = driver
+        self.count = page_count
+        self.text = text
+
+    def run(self):
+        BingSeleniumUtility(count=self.count, bing_data=self.text, bing_driver=self.driver).bing_page_source()
+
+def search_scroll_down(xpath, data, driver):
     # 스크롤 다운
     scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
 
@@ -147,6 +143,5 @@ def search_scroll_down(xpath, data):
     time.sleep(2)
 
     return scroll_down
-
 
 

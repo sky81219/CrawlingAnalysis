@@ -1,6 +1,7 @@
 """
 대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 (내가 진행하고있음)
 """
+import http
 import re
 import time
 import logging
@@ -10,7 +11,6 @@ from collections import deque
 import requests
 import urllib3
 from bs4 import BeautifulSoup
-from requests import exceptions
 from urllib.parse import urlparse
 
 from Crawling.core_parsing import database
@@ -19,6 +19,9 @@ from Crawling.core_parsing import database
 # visit_site = deque()
 # visited_site = deque()
 # expected_site = deque()
+
+request_except = requests.exceptions
+url_except = urllib3.exceptions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # database
@@ -41,10 +44,6 @@ class UrlParsingDriver:
         self.ignore_search = re.compile('^/(search)|(related:)')
         self.url = url
         self.soup = None
-
-    def run(self):
-        self.search_data()
-        self.url_create()
 
     def url_create(self):
         return f'{urlparse(self.url).scheme}://{urlparse(self.url).netloc}/'
@@ -78,15 +77,15 @@ class UrlParsingDriver:
                 # log
                 logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {status}')
 
-                total_url = self.url_addition(get_link)
-                a = CounterTag().count_tag_url(total_url)
+                # total_url = self.url_addition(get_link)
+                # a = CounterTag().count_tag_url(total_url)
 
                 # db insert
                 # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
                 # insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
 
-        except (exceptions.ConnectionError, exceptions.RequestException,
-                exceptions.MissingSchema, exceptions.HTTPError):
+        except (request_except.ConnectionError, url_except.MaxRetryError, url_except.ProtocolError,
+                url_except.NewConnectionError):
             print('Error or schemaMissing')
 
     def main_stream(self, html_data):
@@ -118,5 +117,9 @@ if "__main__" == __name__:
     p2 = multiprocessing.Process(target=parser.url_create, args=())
     p2.start()
 
+    p3 = multiprocessing.Process(target=parser.count_tag_url, args=())
+    p3.start()
+
     p1.join()
     p2.join()
+    p3.join()
