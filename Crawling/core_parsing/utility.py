@@ -26,7 +26,6 @@ start_time = datetime.datetime.now()
 # 로그
 logging = create_log.log()
 
-"""
 option_chrome = webdriver.ChromeOptions()
 option_chrome.add_argument('headless')
 option_chrome.add_argument("disable-gpu")
@@ -45,15 +44,13 @@ prefs = {'profile.default_content_setting_values'
          }
 
 option_chrome.add_experimental_option('prefs', prefs)
-"""
+
 # chromedriver_path
 path = os.path.abspath(path="../parser_test/chromedriver")
 web_driver = webdriver.Chrome(path)
 
 # driver
 logging.info(f'start time in --> {start_time}')
-
-
 class GoogleSeleniumUtility(UrlParsingDriver):
     def __init__(self, count, google_data=None, google_driver=None, url='https://www.google.com'):
         super(GoogleSeleniumUtility, self).__init__(url)
