@@ -19,7 +19,7 @@ import os
 from Crawling.core_parsing import create_log
 from Crawling.core_parsing.web_parser import UrlParsingDriver
 
-from threading import Thread
+
 from selenium import webdriver
 
 # 현재 시각하는 시간 설정

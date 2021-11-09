@@ -2,6 +2,7 @@
 대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 (내가 진행하고있음)
 """
 import http
+import json
 import re
 import time
 import logging
@@ -34,8 +35,6 @@ UrlParsing
   ▲
 Sele
 """
-
-
 # html data paring
 class UrlParsingDriver:
     def __init__(self, url=None):
@@ -74,11 +73,24 @@ class UrlParsingDriver:
                 status = requests.get(get_link, verify=False).status_code
                 time.sleep(1)
 
+                # url 합성
                 total_url = self.url_addition(get_link)
 
                 # log
                 logging.info(f'link -> {total_url}, title -> {get_text},  status_code -> {status}')
-                self.count_tag_url()
+                tag = self.count_tag_url()
+
+                # json 파일규격
+                data_architecture = {"url": total_url,
+                                     "title": get_text,
+                                     "status_code": status,
+                                     "tag": {"a_tag": tag[0],
+                                             "a_href": tag[1],
+                                             "line_tag": tag[2],
+                                             "link_href": tag[3]
+                                             }
+                                     }
+                print(json.dumps(data_architecture, indent=4))
 
                 # db insert
                 # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
@@ -93,9 +105,8 @@ class UrlParsingDriver:
         a_href = [0 if a_tag == KeyError else a_tag.href for a_tag in self.soup.find_all('a')]
         link_count = [a_tag for a_tag in self.soup.find_all('link')]
         link_href = [0 if a_tag == KeyError else a_tag.href for a_tag in self.soup.find_all('link')]
-        text = [a_tag.h3 for a_tag in self.soup.find_all('a')]
 
-        return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
+        return int(len(a_count)), int(len(a_href)), int(len(link_count)), int(len(link_href))
 
     def main_stream(self, html_data):
         self.soup = BeautifulSoup(html_data, "lxml")
