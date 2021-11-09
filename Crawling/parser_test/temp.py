@@ -1,11 +1,10 @@
-from Crawling.core_parsing.utility import Parser
+from Crawling.core_parsing.utility import DriverUtility
+
+def main(count, data):
+    DriverUtility(count=count, data=data).start()
 
 
-a = Parser(3, "hello")
-a.start()
-a.join()
-
-
+main(3, "hello")
 """
 //*[@id="_ktkjYZbGNND1-QbZn73ICg33"]/div[1]/div/div/div/div/div/div/div[1]/a
 //*[@id="rso"]/div[2]/div/div/div/div[1]/a

@@ -9,6 +9,8 @@
     - Parser class 전체 클래스에 있는 driver 통합하는 과정
     - 상속이 복잡해질꺼 같은데 시도해봐서 상속을 정리하는 방향
     - ELK 적용해보기
+    
+bing architecture = f'//*[@id="b_results"]/li[16]/nav/ul/li[{i}]/a'
 """
 import datetime
 import time
@@ -47,18 +49,19 @@ option_chrome.add_experimental_option('prefs', prefs)
 
 # chromedriver_path
 path = os.path.abspath(path="../parser_test/chromedriver")
-web_driver = webdriver.Chrome(path)
+web_driver = webdriver.Chrome(path, options=option_chrome)
+
 
 # driver
 logging.info(f'start time in --> {start_time}')
 class GoogleSeleniumUtility(UrlParsingDriver):
-    def __init__(self, count, google_data=None, google_driver=None, url='https://www.google.com'):
-        super(GoogleSeleniumUtility, self).__init__(url)
+    def __init__(self, count, data=None, url=None, driver=None):
+        super().__init__(url)
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.count = count
         self.url = url
-        self.data = google_data
-        self.google_driver = google_driver
+        self.data = data
+        self.google_driver = driver
 
     # 검색 -> 검색한 URL 로 넘어가기
     def search_injection(self):
@@ -68,6 +71,7 @@ class GoogleSeleniumUtility(UrlParsingDriver):
 
     # 소스 가져다 주는 일급 함수
     def page_source(self):
+        print(self.url)
         self.google_driver.get(self.url)
         self.search_injection()
         for i in range(2, self.count + 1):
@@ -82,49 +86,16 @@ class GoogleSeleniumUtility(UrlParsingDriver):
 
         self.google_driver.quit()
 
+class DriverUtility(GoogleSeleniumUtility):
+    # 생성자 설정
+    def __init__(self, count, data, url="https://www.google.com", driver=web_driver):
+        super().__init__(count, data, url, driver)
+        self.data = data
+        self.count = count
 
-class BingSeleniumUtility(UrlParsingDriver):
-    def __init__(self, count, bing_data=None, bing_driver=None, url='https://www.bing.com'):
-        super(BingSeleniumUtility, self).__init__(url)
-        self.bing_search_xpath = '//*[@id="sb_form_q"]'  # bing xpath
-        self.bing_count = count
-        self.bing_data = bing_data
-        self.bing_url = url
-        self.bing_driver = bing_driver
+    def start(self):
+        self.page_source()
 
-    # 검색 -> 검색한 URL 로 넘어가기
-    def search_injection(self):
-        logging.info(f'Start bing Search in Crawling... {1} page Checking')
-        down = search_scroll_down(self.bing_search_xpath, data=self.bing_data, driver=self.bing_driver)
-        return down
-
-    # 소스 가져다 주는 일급 함수
-    def bing_page_source(self):
-        self.bing_driver.get(self.url)
-        self.search_injection()
-        for i in range(2, self.bing_count + 1):
-            logging.info(f'search bing in Crawling... {i} page Checking')
-            google_next_page = self.bing_driver.find_element_by_xpath(f'//*[@id="b_results"]/li[16]/nav/ul/li[{i}]/a')
-            google_next_page.click()
-
-            # page html 가져오기 딜레이 3초
-            html_data = self.bing_driver.page_source
-            self.main_stream(html_data)
-            time.sleep(2)
-
-        self.bing_driver.quit()
-
-
-class Parser(Thread):
-    def __init__(self, page_count, text=None, driver=web_driver):
-        Thread.__init__(self)
-        """웹드라이버가 여기에 있으면 오류가 난다! 웹드라이버는 싱글스레드라서!"""
-        self.driver = driver
-        self.count = page_count
-        self.text = text
-
-    def run(self):
-        BingSeleniumUtility(count=self.count, bing_data=self.text, bing_driver=self.driver).bing_page_source()
 
 def search_scroll_down(xpath, data, driver):
     # 스크롤 다운

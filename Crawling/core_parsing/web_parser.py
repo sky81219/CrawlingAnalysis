@@ -74,11 +74,11 @@ class UrlParsingDriver:
                 status = requests.get(get_link, verify=False).status_code
                 time.sleep(1)
 
-                # log
-                logging.info(f'link -> {get_link}, title -> {get_text},  status_code -> {status}')
+                total_url = self.url_addition(get_link)
 
-                # total_url = self.url_addition(get_link)
-                # a = CounterTag().count_tag_url(total_url)
+                # log
+                logging.info(f'link -> {total_url}, title -> {get_text},  status_code -> {status}')
+                self.count_tag_url()
 
                 # db insert
                 # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
@@ -96,6 +96,10 @@ class UrlParsingDriver:
         text = [a_tag.h3 for a_tag in self.soup.find_all('a')]
 
         return len(a_count), len(a_href), len(link_count), len(link_href), len(text)
+
+    def main_stream(self, html_data):
+        self.soup = BeautifulSoup(html_data, "lxml")
+        self.search_data()
 
 
 if "__main__" == __name__:
