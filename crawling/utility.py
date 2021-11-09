@@ -18,9 +18,8 @@ import os
 
 from crawling import create_log
 from crawling.web_parser import UrlParsingDriver
-
-
 from selenium import webdriver
+
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -48,7 +47,7 @@ prefs = {'profile.default_content_setting_values'
 option_chrome.add_experimental_option('prefs', prefs)
 
 # chromedriver_path
-path = os.path.abspath(path="/home/lmsky/문서/CrawlingAnalysis/crawling/chromedriver")
+path = os.path.abspath(path="/home/lmsky/문서/CrawlingAnalysis/chromedriver")
 print(path)
 web_driver = webdriver.Chrome(path, options=option_chrome)
 
@@ -70,7 +69,7 @@ class GoogleSeleniumUtility(UrlParsingDriver):
         down = search_scroll_down(self.google_search_xpath, data=self.data, driver=self.google_driver)
         return down
 
-    # 소스 가져다 주는 일급 함수
+    # 소스 가져다줌
     def page(self):
         self.google_driver.get(self.url)
         self.search_injection()
@@ -86,6 +85,7 @@ class GoogleSeleniumUtility(UrlParsingDriver):
 
         self.google_driver.quit()
 
+# 드라이버 사용하여 범용적으로 할 수 있는 걸로 적용함 함수 결합도 느슨함
 class DriverUtility(GoogleSeleniumUtility):
     # 생성자 설정
     def __init__(self, count, data, url="https://www.google.com", driver=web_driver):
@@ -95,7 +95,6 @@ class DriverUtility(GoogleSeleniumUtility):
 
     def start(self):
         self.page()
-
 
 def search_scroll_down(xpath, data, driver):
     # 스크롤 다운

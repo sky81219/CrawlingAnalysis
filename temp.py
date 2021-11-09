@@ -1,7 +1,7 @@
 from crawling.utility import DriverUtility
 
 def main(count, data):
-    DriverUtility(count=count, data=data).start()
+    DriverUtility(count, data).start()
 
 
 main(3, "안녕")

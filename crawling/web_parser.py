@@ -5,7 +5,7 @@ import json
 import re
 import time
 import logging
-import multiprocessing
+from threading import Thread
 from collections import deque
 
 import requests
@@ -35,8 +35,8 @@ UrlParsing
   ▲
 Sele
 """
+# 스레드 적용해보기
 class UrlParsingDriver:
-
     def __init__(self, url=None):
         self.ignore_tag = '#'
         self.ignore_url = re.compile('^(http|https)+://(webcache)')
@@ -79,8 +79,9 @@ class UrlParsingDriver:
                 # log
                 logging.info(f'link -> {total_url}, title -> {get_text},  status_code -> {status}')
                 tag = self.count_tag_url()
+
                 # JSON 생산
-                making_json_file(total_url, get_text, status, tag)
+                self.making_json_file(total_url, get_text, status, tag)
 
                 # 큐 설정
                 visit_site.append(total_url)
@@ -105,44 +106,39 @@ class UrlParsingDriver:
 
         return int(len(a_count)), int(len(a_href)), int(len(link_count)), int(len(link_href))
 
+    # json 파일 만들기
+    @staticmethod
+    def making_json_file(total_url, get_text, status, tag):
+        # json 파일규격
+        data_architecture = {"url": total_url,
+                             "title": get_text,
+                             "status_code": status,
+                             "tag": {
+                                     "a_tag": tag[0],
+                                     "a_href": tag[1],
+                                     "line_tag": tag[2],
+                                     "link_href": tag[3]
+                                     }
+                             }
+        json.dumps(data_architecture, indent=4)
+
+    @staticmethod
+    # phishing 특징 추출
+    def phishing_prepro():
+        print(f"{int(len(visited_site))}개의 URL 를 수집 했습니다 Phishing site feature 추출을 시작합니다")
+        for data in visited_site:
+            PhishingPreprocessing(data).making_data()
+
     def main_stream(self, html_data):
         self.soup = BeautifulSoup(html_data, "lxml")
         self.search_data()
-        phishing_prepro()
+        self.phishing_prepro()
 
-# html data paring
-def making_json_file(total_url, get_text, status, tag):
-    # json 파일규격
-    data_architecture = {"url": total_url,
-                         "title": get_text,
-                         "status_code": status,
-                         "tag": {
-                                 "a_tag": tag[0],
-                                 "a_href": tag[1],
-                                 "line_tag": tag[2],
-                                 "link_href": tag[3]
-                                 }
-                         }
-    json.dumps(data_architecture, indent=4)
-
-def phishing_prepro():
-    print(f"{int(len(visited_site))}개의 URL 를 수집 했습니다 Phishing site feature 추출을 시작합니다")
-    for data in visited_site:
-        PhishingPreprocessing(data).making_data()
-
-
-if "__main__" == __name__:
-    parser = UrlParsingDriver()
-
-    p1 = multiprocessing.Process(target=parser.search_data, args=())
-    p1.start()
-
-    p3 = multiprocessing.Process(target=parser.count_tag_url, args=())
-    p3.start()
-
-    p4 = multiprocessing.Process(target=phishing_prepro, args=())
-    p4.start()
-
-    p1.join()
-    p3.join()
-    p4.join()
+"""
+def th_main():
+    print("시작합니다")
+    th = threading.Thread(target=UrlParsingDriver, args=())
+    th.setDaemon(True)
+    th.start()
+    th.join()
+"""
