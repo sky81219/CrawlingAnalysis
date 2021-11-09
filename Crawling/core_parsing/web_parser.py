@@ -1,7 +1,6 @@
 """
 대규모 크롤링(여러가지 검색 엔진 사이트(google naver bing daum)을 해서 (내가 진행하고있음)
 """
-import http
 import json
 import re
 import time
@@ -26,7 +25,7 @@ url_except = urllib3.exceptions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # database
-# insert_base = database.MysqlConnect()
+insert_base = database.MysqlConnect()
 
 """
 thread
@@ -36,6 +35,20 @@ UrlParsing
 Sele
 """
 # html data paring
+def making_json_file(total_url, get_text, status, tag):
+    # json 파일규격
+    data_architecture = {"url": total_url,
+                         "title": get_text,
+                         "status_code": status,
+                         "tag": {"a_tag": tag[0],
+                                 "a_href": tag[1],
+                                 "line_tag": tag[2],
+                                 "link_href": tag[3]
+                                 }
+                         }
+    print(json.dumps(data_architecture, indent=4))
+
+
 class UrlParsingDriver:
     def __init__(self, url=None):
         self.ignore_tag = '#'
@@ -79,22 +92,13 @@ class UrlParsingDriver:
                 # log
                 logging.info(f'link -> {total_url}, title -> {get_text},  status_code -> {status}')
                 tag = self.count_tag_url()
-
-                # json 파일규격
-                data_architecture = {"url": total_url,
-                                     "title": get_text,
-                                     "status_code": status,
-                                     "tag": {"a_tag": tag[0],
-                                             "a_href": tag[1],
-                                             "line_tag": tag[2],
-                                             "link_href": tag[3]
-                                             }
-                                     }
-                print(json.dumps(data_architecture, indent=4))
+                print(tag)
+                # JSON 생산
+                # making_json_file(total_url, get_text, status, tag)
 
                 # db insert
-                # insert_base.url_tag_db_insert(total_url, get_text, a[0], a[1], a[2], a[3], a[4])
-                # insert_base.url_status_db_insert(total_url, status, get_text, a[0], a[2])
+                insert_base.url_tag_db_insert(total_url, get_text, tag[0], tag[1], tag[2], tag[3])
+                insert_base.url_status_db_insert(total_url, status, get_text, tag[0], tag[2])
 
         except (request_except.ConnectionError, url_except.MaxRetryError, url_except.ProtocolError,
                 url_except.NewConnectionError):

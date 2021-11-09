@@ -17,12 +17,12 @@ class MysqlConnect:
         except pymysql.err.Error as e:
             print(e)
 
-    def url_tag_db_insert(self, url, title, a_tag, a_href_tag, link_tag, link_href_tag, text_tag):
+    def url_tag_db_insert(self, url, title, a_tag, a_href_tag, link_tag, link_href_tag):
         try:
             sql_query = "INSERT INTO url_tag " \
-                        "(url, title, a_tag, a_href_tag, link_tag, link_href_tag, text_tag) " \
-                        "VALUE (%s, %s, %s, %s, %s, %s, %s)"
-            self.conn.cursor().execute(sql_query, (url, title, a_tag, a_href_tag, link_tag, link_href_tag, text_tag))
+                        "(url, title, a_tag, a_href_tag, link_tag, link_href_tag) " \
+                        "VALUE (%s, %s, %s, %s, %s, %s)"
+            self.conn.cursor().execute(sql_query, (url, title, a_tag, a_href_tag, link_tag, link_href_tag))
             return self.conn.commit()
         except pymysql.err.Error as e:
             print(e)
