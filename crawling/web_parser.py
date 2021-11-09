@@ -13,11 +13,12 @@ import urllib3
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
-from Crawling.core_parsing import database
+from crawling import database
+from phishing_spark.phishing_preprocessing.phishing import PhishingPreprocessing
 
 # 방문 큐 만들기 설계 진행해야함
-# visit_site = deque()
-# visited_site = deque()
+visit_site = deque()
+visited_site = deque()
 # expected_site = deque()
 
 request_except = requests.exceptions
@@ -34,22 +35,8 @@ UrlParsing
   ▲
 Sele
 """
-# html data paring
-def making_json_file(total_url, get_text, status, tag):
-    # json 파일규격
-    data_architecture = {"url": total_url,
-                         "title": get_text,
-                         "status_code": status,
-                         "tag": {"a_tag": tag[0],
-                                 "a_href": tag[1],
-                                 "line_tag": tag[2],
-                                 "link_href": tag[3]
-                                 }
-                         }
-    print(json.dumps(data_architecture, indent=4))
-
-
 class UrlParsingDriver:
+
     def __init__(self, url=None):
         self.ignore_tag = '#'
         self.ignore_url = re.compile('^(http|https)+://(webcache)')
@@ -92,13 +79,19 @@ class UrlParsingDriver:
                 # log
                 logging.info(f'link -> {total_url}, title -> {get_text},  status_code -> {status}')
                 tag = self.count_tag_url()
-                print(tag)
                 # JSON 생산
-                # making_json_file(total_url, get_text, status, tag)
+                making_json_file(total_url, get_text, status, tag)
+
+                # 큐 설정
+                visit_site.append(total_url)
+                while visit_site:
+                    node = visit_site.popleft()
+                    if node not in visited_site:
+                        visited_site.append(node)
 
                 # db insert
-                insert_base.url_tag_db_insert(total_url, get_text, tag[0], tag[1], tag[2], tag[3])
-                insert_base.url_status_db_insert(total_url, status, get_text, tag[0], tag[2])
+                # insert_base.url_tag_db_insert(total_url, get_text, tag[0], tag[1], tag[2], tag[3])
+                # insert_base.url_status_db_insert(total_url, status, get_text, tag[0], tag[2])
 
         except (request_except.ConnectionError, url_except.MaxRetryError, url_except.ProtocolError,
                 url_except.NewConnectionError):
@@ -115,6 +108,27 @@ class UrlParsingDriver:
     def main_stream(self, html_data):
         self.soup = BeautifulSoup(html_data, "lxml")
         self.search_data()
+        phishing_prepro()
+
+# html data paring
+def making_json_file(total_url, get_text, status, tag):
+    # json 파일규격
+    data_architecture = {"url": total_url,
+                         "title": get_text,
+                         "status_code": status,
+                         "tag": {
+                                 "a_tag": tag[0],
+                                 "a_href": tag[1],
+                                 "line_tag": tag[2],
+                                 "link_href": tag[3]
+                                 }
+                         }
+    json.dumps(data_architecture, indent=4)
+
+def phishing_prepro():
+    print(f"{int(len(visited_site))}개의 URL 를 수집 했습니다 Phishing site feature 추출을 시작합니다")
+    for data in visited_site:
+        PhishingPreprocessing(data).making_data()
 
 
 if "__main__" == __name__:
@@ -123,12 +137,12 @@ if "__main__" == __name__:
     p1 = multiprocessing.Process(target=parser.search_data, args=())
     p1.start()
 
-    p2 = multiprocessing.Process(target=parser.url_create, args=())
-    p2.start()
-
     p3 = multiprocessing.Process(target=parser.count_tag_url, args=())
     p3.start()
 
+    p4 = multiprocessing.Process(target=phishing_prepro, args=())
+    p4.start()
+
     p1.join()
-    p2.join()
     p3.join()
+    p4.join()

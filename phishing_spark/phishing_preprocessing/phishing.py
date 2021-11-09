@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from urllib.error import URLError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-import ipaddress
 from tld import get_tld
 from googlesearch import search
 
@@ -80,13 +79,6 @@ class PhishingPreprocessing:
         else:
             return -1
 
-    def having_ip(self):
-        try:
-            ipaddress.ip_address(self.url)
-            return 1
-        except (requests.exceptions.HTTPError, requests.exceptions.ReadTimeout):
-            return -1
-
     def google_index(self):
         try:
             site = search(self.url, 5)
@@ -150,7 +142,7 @@ class PhishingPreprocessing:
             "count-http": [self.count_http()], "count-https": [self.count_https()], "count-www": [self.count_www()],
             "count-digit": [self.numDigits()], "count-letter": [self.letter_count()], "count_dir": [self.no_of_dir()],
             "redirection": [self.redirection()], "google_index": [self.google_index()],
-            "url_length": [self.url_length()], "havingIp": [self.having_ip()], "sfh": [self.sfh()],
+            "url_length": [self.url_length()], "sfh": [self.sfh()],
             "short_url_service": [self.shortening_service()]
         }
         data = pd.DataFrame(data_)

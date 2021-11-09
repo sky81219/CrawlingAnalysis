@@ -16,8 +16,8 @@ import datetime
 import time
 import os
 
-from Crawling.core_parsing import create_log
-from Crawling.core_parsing.web_parser import UrlParsingDriver
+from crawling import create_log
+from crawling.web_parser import UrlParsingDriver
 
 
 from selenium import webdriver
@@ -48,7 +48,8 @@ prefs = {'profile.default_content_setting_values'
 option_chrome.add_experimental_option('prefs', prefs)
 
 # chromedriver_path
-path = os.path.abspath(path="../parser_test/chromedriver")
+path = os.path.abspath(path="/home/lmsky/문서/CrawlingAnalysis/crawling/chromedriver")
+print(path)
 web_driver = webdriver.Chrome(path, options=option_chrome)
 
 
@@ -70,8 +71,7 @@ class GoogleSeleniumUtility(UrlParsingDriver):
         return down
 
     # 소스 가져다 주는 일급 함수
-    def page_source(self):
-        print(self.url)
+    def page(self):
         self.google_driver.get(self.url)
         self.search_injection()
         for i in range(2, self.count + 1):
@@ -94,7 +94,7 @@ class DriverUtility(GoogleSeleniumUtility):
         self.count = count
 
     def start(self):
-        self.page_source()
+        self.page()
 
 
 def search_scroll_down(xpath, data, driver):
