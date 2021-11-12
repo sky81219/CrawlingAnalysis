@@ -16,10 +16,9 @@ import datetime
 import time
 import os
 
-from crawling import create_log
-from crawling.web_parser import UrlParsingDriver
-from selenium import webdriver
 
+from crawling import create_log
+from selenium import webdriver
 
 # 현재 시각하는 시간 설정
 start_time = datetime.datetime.now()
@@ -54,9 +53,8 @@ web_driver = webdriver.Chrome(path, options=option_chrome)
 
 # driver
 logging.info(f'start time in --> {start_time}')
-class GoogleSeleniumUtility(UrlParsingDriver):
-    def __init__(self, count, data=None, url=None, driver=None):
-        super().__init__(url)
+class GoogleSeleniumUtility:
+    def __init__(self, count=None, data=None, url="https://www.google.com", driver=web_driver):
         self.google_search_xpath = '//input[@title="검색"]'  # korea google xpath
         self.count = count
         self.url = url
@@ -71,8 +69,10 @@ class GoogleSeleniumUtility(UrlParsingDriver):
 
     # 소스 가져다줌
     def page(self):
+        url_html_data = []
         self.google_driver.get(self.url)
         self.search_injection()
+
         for i in range(2, self.count + 1):
             logging.info(f'google Search in Crawling... {i} page Checking')
             google_next_page = self.google_driver.find_element_by_xpath(f'//a[@aria-label="Page {str(i)}"]')
@@ -80,21 +80,12 @@ class GoogleSeleniumUtility(UrlParsingDriver):
 
             # page html 가져오기 딜레이 3초
             html_data = self.google_driver.page_source
-            self.main_stream(html_data)
+            url_html_data.append(html_data)
             time.sleep(2)
 
         self.google_driver.quit()
 
-# 드라이버 사용하여 범용적으로 할 수 있는 걸로 적용함 함수 결합도 느슨함
-class DriverUtility(GoogleSeleniumUtility):
-    # 생성자 설정
-    def __init__(self, count, data, url="https://www.google.com", driver=web_driver):
-        super().__init__(count, data, url, driver)
-        self.data = data
-        self.count = count
-
-    def start(self):
-        self.page()
+        return url_html_data
 
 def search_scroll_down(xpath, data, driver):
     # 스크롤 다운
