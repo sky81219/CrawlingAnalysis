@@ -46,9 +46,28 @@ prefs = {'profile.default_content_setting_values'
 option_chrome.add_experimental_option('prefs', prefs)
 
 # chromedriver_path
-path = os.path.abspath(path="/home/lmsky/문서/CrawlingAnalysis/chromedriver")
+path = os.path.abspath(path="chromedriver")
 print(path)
 web_driver = webdriver.Chrome(path, options=option_chrome)
+
+
+# 스크롤 다운 원시? 버전 
+def search_scroll_down(xpath, data, driver):
+    logging.info(f'Start google Search in Crawling... {1} page Checking')
+
+    # 스크롤 다운
+    scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
+
+    # xpath location
+    google_search = driver.find_element_by_xpath(xpath)
+    # 보내는 키
+    google_search.send_keys(data)
+    google_search.submit()
+
+    # 딜레이 2초
+    time.sleep(2)
+
+    return scroll_down
 
 
 # driver
@@ -61,17 +80,11 @@ class GoogleSeleniumUtility:
         self.data = data
         self.google_driver = driver
 
-    # 검색 -> 검색한 URL 로 넘어가기
-    def search_injection(self):
-        logging.info(f'Start google Search in Crawling... {1} page Checking')
-        down = search_scroll_down(self.google_search_xpath, data=self.data, driver=self.google_driver)
-        return down
-
-    # 소스 가져다줌
+    # 소스 가져다줌  # 함수화 할 수 있을 듯 path inject 활용만 잘 하면 느슨함을 더 강조 할 수 있음 
     def page(self):
         url_html_data = []
         self.google_driver.get(self.url)
-        self.search_injection()
+        search_scroll_down(self.google_search_xpath, self.data, self.google_driver)
 
         for i in range(2, self.count + 1):
             logging.info(f'google Search in Crawling... {i} page Checking')
@@ -87,19 +100,7 @@ class GoogleSeleniumUtility:
 
         return url_html_data
 
-def search_scroll_down(xpath, data, driver):
-    # 스크롤 다운
-    scroll_down = driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")  # 스크롤 다운
 
-    # xpath location
-    google_search = driver.find_element_by_xpath(xpath)
-    # 보내는 키
-    google_search.send_keys(data)
-    google_search.submit()
 
-    # 딜레이 2초
-    time.sleep(2)
-
-    return scroll_down
 
 

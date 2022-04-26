@@ -1,0 +1,27 @@
+2022-04-19 23:16:25,381 - root - INFO - start time in --> 2022-04-19 23:16:24.746099
+2022-04-19 23:18:44,391 - root - INFO - start time in --> 2022-04-19 23:18:43.737113
+2022-04-19 23:18:45,766 - root - INFO - Start google Search in Crawling... 1 page Checking
+2022-04-19 23:18:50,085 - root - INFO - google Search in Crawling... 2 page Checking
+2022-04-19 23:18:56,121 - root - INFO - link -> https://kakao.com/talksafety, title -> 카톡 안녕가이드 - Kakaohttps://kakao.com › talksafety,  status_code -> 200
+2022-04-19 23:19:00,223 - root - INFO - link -> http://v-reaction.net/, title -> 안녕캠페인http://v-reaction.net,  status_code -> 200
+2022-04-19 23:19:04,293 - root - INFO - link -> http://hellojeju.kr/, title -> 안녕,제주http://hellojeju.kr,  status_code -> 200
+2022-04-19 23:19:08,682 - root - INFO - link -> http://www.yes24.com/Product/Goods/61971390, title -> 안녕http://www.yes24.com › Product › Goods,  status_code -> 200
+2022-04-19 23:19:13,905 - root - INFO - link -> https://www.babla.kr/%ED%95%9C%EA%B5%AD%EC%96%B4-%EC%98%81%EC%96%B4/%EC%95%88%EB%85%95, title -> 한국어-영어 "안녕" 번역 - bab.lahttps://www.babla.kr › 한국어-영어 › 안녕,  status_code -> 403
+2022-04-19 23:19:18,179 - root - INFO - link -> https://www.saramin.co.kr/zf_user/company-info/view/csn/UEJmV2J3c0ZWeFFwZk9xSTlYdmR6dz09/company_nm/(%EC%A3%BC)%EC%95%88%EB%85%95, title -> (주)안녕 2022년 기업정보 | 사원수 3명, 근무환경, 복리후생 등 ...https://www.saramin.co.kr › view › csn › company_nm,  status_code -> 200
+2022-04-19 23:19:23,646 - root - INFO - link -> https://www.wordhippo.com/what-is/the-meaning-of/korean-word-4afa71ffb32dc64586c1a3b65cb7b99d7f2e3185.html, title -> What does 안녕 (annyeong) mean in Korean? - WordHippohttps://www.wordhippo.com › what-is › the-meaning-of,  status_code -> 200
+2022-04-19 23:19:25,810 - root - INFO - link -> https://dict.naver.com/frkodict/ko/entry/kofr/3543082, title -> '안녕': 네이버 프랑스어사전https://dict.naver.com › frkodict › entry › kofr,  status_code -> 200
+2022-04-19 23:19:30,187 - root - INFO - link -> https://kjgsb.com/4540, title -> JOY(조이) - 안녕 (Hello) (뮤비/가사)https://kjgsb.com › ...,  status_code -> 200
+2022-04-19 23:19:34,410 - root - INFO - link -> https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=155390621, title -> 안녕 - 알라딘https://www.aladin.co.kr › shop › wproduct,  status_code -> 200
+2022-04-26 17:18:12,660 - root - INFO - start time in --> 2022-04-26 17:18:12.020594
+2022-04-26 17:18:13,881 - root - INFO - Start google Search in Crawling... 1 page Checking
+2022-04-26 17:18:17,482 - root - INFO - google Search in Crawling... 2 page Checking
+2022-04-26 17:18:23,807 - root - INFO - link -> https://ko.wiktionary.org/wiki/%EC%95%88%EB%85%95%ED%95%98%EB%8B%A4 || title -> 안녕하다 - 위키낱말사전https://ko.wiktionary.org › wiki › 안녕하다 || status_code -> 200
+2022-04-26 17:18:28,950 - root - INFO - link -> https://program.kbs.co.kr/2tv/drama/hellome/mobile/ || title -> 안녕? 나야! | 디지털 KBShttps://program.kbs.co.kr › drama › hellome › mobile || status_code -> 200
+2022-04-26 17:18:33,018 - root - INFO - link -> http://v-reaction.net/ || title -> 안녕캠페인http://v-reaction.net || status_code -> 200
+2022-04-26 17:18:37,149 - root - INFO - link -> http://hellojeju.kr/ || title -> 안녕,제주http://hellojeju.kr || status_code -> 200
+2022-04-26 17:18:42,636 - root - INFO - link -> https://www.babla.kr/%ED%95%9C%EA%B5%AD%EC%96%B4-%EC%98%81%EC%96%B4/%EC%95%88%EB%85%95 || title -> 한국어-영어 "안녕" 번역 - bab.lahttps://www.babla.kr › 한국어-영어 › 안녕 || status_code -> 403
+2022-04-26 17:18:47,256 - root - INFO - link -> http://www.yes24.com/Product/Goods/61971390 || title -> 안녕http://www.yes24.com › Product › Goods || status_code -> 200
+2022-04-26 17:18:52,777 - root - INFO - link -> https://www.wordhippo.com/what-is/the-meaning-of/korean-word-4afa71ffb32dc64586c1a3b65cb7b99d7f2e3185.html || title -> What does 안녕 (annyeong) mean in Korean? - WordHippohttps://www.wordhippo.com › what-is › the-meaning-of || status_code -> 200
+2022-04-26 17:18:54,989 - root - INFO - link -> https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=155390621 || title -> 안녕 - 알라딘https://www.aladin.co.kr › shop › wproduct || status_code -> 200
+2022-04-26 17:18:59,437 - root - INFO - link -> https://www.saramin.co.kr/zf_user/company-info/view/csn/UEJmV2J3c0ZWeFFwZk9xSTlYdmR6dz09/company_nm/(%EC%A3%BC)%EC%95%88%EB%85%95 || title -> (주)안녕 2022년 기업정보 | 사원수 3명, 근무환경, 복리후생 등 ...https://www.saramin.co.kr › view › csn › company_nm || status_code -> 200
+2022-04-26 17:19:03,570 - root - INFO - link -> https://dict.naver.com/frkodict/ko/entry/kofr/3543082 || title -> '안녕': 네이버 프랑스어사전https://dict.naver.com › frkodict › entry › kofr || status_code -> 200

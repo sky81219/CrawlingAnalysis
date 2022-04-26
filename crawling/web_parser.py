@@ -14,7 +14,6 @@ from urllib.parse import urlparse
 
 from crawling import database
 from crawling.selenium_util import GoogleSeleniumUtility
-from phishing_spark.phishing_preprocessing.phishing import PhishingPreprocessing
 
 
 # 방문 큐 만들기 설계 진행해야함
@@ -27,7 +26,7 @@ url_except = urllib3.exceptions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # database
-insert_base = database.MysqlConnect()
+# insert_base = database.MysqlConnect()
 
 """
 thread
@@ -35,6 +34,8 @@ thread
 UrlParsing
   ▲
 Sele
+
+뭔가 빡세게 못짯음 
 """
 
 def page_invest(url):
@@ -91,10 +92,9 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                 status = requests.get(total_url, verify=False).status_code
                 time.sleep(1)
 
-                # log
-                logging.info(f'link -> {total_url}, title -> {get_text},  status_code -> {status}')
+                logging.info(f'link -> {total_url} || title -> {get_text} || status_code -> {status}')
 
-                # JSON 생산
+                # JSON 생성
                 self.making_json_file(total_url, get_text, status)
                 get_url.append(total_url)
 
@@ -122,14 +122,14 @@ class UrlParsingDriver(GoogleSeleniumUtility):
                              "title": get_text,
                              "status_code": status}
         json.dumps(data_architecture, indent=4)
-
+    """
     @staticmethod
     # phishing 특징 추출
     def phishing_prepro():
         print(f"{int(len(visited_site))}개의 URL 를 수집 했습니다 Phishing site feature 추출을 시작합니다")
         for data in visited_site:
             PhishingPreprocessing(data).making_data()
-
+    """
 
 # 셀레니움에서 url 를 받으면 url 속에 html 을 가져오기
 class HtmlPageInvestigation(UrlParsingDriver):
@@ -163,7 +163,6 @@ class HtmlPageInvestigation(UrlParsingDriver):
                 # insert_base.url_status_db_insert(total_url, status, get_text, tag[0], tag[2])
 
     def count_tag_url(self):
-
         a_count = [a_tag for a_tag in self.soup.find_all('a')]
         a_href = [0 if a_tag == KeyError else a_tag.href for a_tag in self.soup.find_all('a')]
         link_count = [a_tag for a_tag in self.soup.find_all('link')]
@@ -172,7 +171,6 @@ class HtmlPageInvestigation(UrlParsingDriver):
         return int(len(a_count)), int(len(a_href)), int(len(link_count)), int(len(link_href))
 
 
-# 드라이버 사용하여 범용적으로 할 수 있는 걸로 적용함 함수 결합도 느슨함
 class DriverUtility(HtmlPageInvestigation, GoogleSeleniumUtility):
     # 생성자 설정
     def __init__(self, count, data):
